@@ -1,0 +1,3832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CRIS • Automatic Block Planning VDU Console (SIH-26027)</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    window.MathJax = {
+      tex: {
+        inlineMath: [['$', '$'], ['\\(', '\\)']],
+        displayMath: [['$$', '$$'], ['\\[', '\\]']]
+      }
+    };
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif; }
+    body { background-color: #030712; color: #f3f4f6; height: 100vh; display: flex; flex-direction: column; overflow: hidden; font-size: 12px; }
+    .mono { font-family: 'JetBrains Mono', Consolas, monospace; }
+
+    /* CRIS Top Ribbon */
+    header {
+      background: #0284c7;
+      padding: 3px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #38bdf8;
+      z-index: 1000;
+    }
+    .gov-title { font-size: 0.88rem; font-weight: 800; letter-spacing: 0.4px; color: #fff; }
+    .gov-sub { font-size: 0.6rem; color: #e0f2fe; }
+
+    /* Navigation Bar — five equal tabs, one row */
+    .nav-bar {
+      background: #0f172a;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 12px;
+      border-bottom: 1px solid #1e293b;
+      z-index: 999;
+      flex-shrink: 0;
+    }
+    .pills {
+      display: flex;
+      gap: 6px;
+      flex: 1 1 auto;
+      min-width: 0;
+      align-items: stretch;
+    }
+    .btn-nav {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      padding: 6px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.68rem;
+      line-height: 1.2;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      text-align: center;
+    }
+    .pills > .btn-nav {
+      flex: 1 1 0;
+      min-width: 0;
+      min-height: 42px;
+    }
+    .btn-nav i { flex: 0 0 auto; font-size: 0.78rem; }
+    .btn-nav.active { background: #38bdf8; color: #030712; border-color: #38bdf8; }
+    .btn-nav:hover:not(.active) { background: #334155; color: #fff; }
+    .nav-status {
+      flex: 0 1 210px;
+      min-width: 0;
+      font-size: 0.64rem;
+      line-height: 1.3;
+      color: #94a3b8;
+      text-align: right;
+    }
+
+    /* Corridor information ribbon — live solver figures */
+    .kpi-row {
+      position: relative;
+      display: grid;
+      grid-template-columns: repeat(9, minmax(0, 1fr)) 112px;
+      background: linear-gradient(180deg, #102033 0%, #07111c 100%);
+      border-bottom: 1px solid #1e293b;
+      padding-top: 2px;
+    }
+    .kpi-row::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      height: 3px;
+      background: linear-gradient(90deg, #ff9933 0 33.33%, #f8fafc 33.33% 66.66%, #138808 66.66% 100%);
+    }
+    .kpi-cell {
+      padding: 3px 8px 2px;
+      text-align: center;
+      border-right: 1px solid #1e293b;
+      min-width: 0;
+    }
+    .kpi-cell.kpi-order { background: rgba(255, 153, 51, 0.07); border-right: none; }
+    .kpi-label {
+      font-size: 0.56rem;
+      color: #cbd5e1;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .kpi-val {
+      font-size: 0.82rem;
+      font-weight: 800;
+      color: #e2e8f0;
+      line-height: 1.25;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .kpi-sub {
+      font-size: 0.55rem;
+      color: #94a3b8;
+      font-weight: 600;
+      margin-top: 1px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    /* Viewport Architecture */
+    .viewport-container { flex: 1; display: flex; overflow: hidden; position: relative; }
+    .page-section { display: none !important; width: 100%; height: 100%; flex: 1; overflow: hidden; }
+    .page-section.active { display: flex !important; }
+
+    /* 1. Situation Monitoring Map */
+    #secMap { flex-direction: column; background: #02040a; }
+    .map-split { display: flex; flex: 1 1 auto; min-height: 0; overflow: hidden; position: relative; }
+    #gisMap { flex: 1.4; height: 100%; border-right: 1px solid #1e293b; }
+    .map-side-telemetry {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0a0f1d;
+      overflow-y: auto;
+      padding: 12px;
+      gap: 10px;
+    }
+    .schematic-panel {
+      background: #030712;
+      border-top: 1px solid #1e293b;
+      display: flex;
+      flex-direction: column;
+      flex: 0 0 auto;
+    }
+    .schematic-legend {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 4px 12px;
+      border-bottom: 1px solid #1e293b;
+      color: #94a3b8;
+      font-size: 0.62rem;
+      font-weight: 700;
+      letter-spacing: 0.3px;
+      flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; color: #e2e8f0; }
+    .legend-item svg { display: block; flex: none; }
+    .schematic-stage {
+      display: flex;
+      height: 176px;
+      background: #030712;
+    }
+    .rail-gutter {
+      width: 74px;
+      flex: none;
+      position: relative;
+      background: #070d18;
+      border-right: 1px solid #1e293b;
+    }
+    .rail-gutter span {
+      position: absolute;
+      left: 6px;
+      font-size: 9px;
+      font-weight: 800;
+      font-family: monospace;
+      letter-spacing: 0.2px;
+      transform: translateY(-50%);
+      white-space: nowrap;
+    }
+    .schematic-box {
+      flex: 1;
+      height: 176px;
+      background: #030712;
+      overflow-x: scroll;
+      overflow-y: hidden;
+      scrollbar-color: #38bdf8 #0f172a;
+      scrollbar-width: auto;
+    }
+    .schematic-box::-webkit-scrollbar { height: 16px; }
+    .schematic-box::-webkit-scrollbar-track { background: #0f172a; border-top: 1px solid #334155; }
+    .schematic-box::-webkit-scrollbar-thumb {
+      background: linear-gradient(90deg, #0284c7, #38bdf8);
+      border: 3px solid #0f172a;
+      border-radius: 8px;
+    }
+    .schematic-box svg { width: 4800px; height: 160px; display: block; }
+    .corridor-scroll {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 12px 8px;
+      background: #070d18;
+      border-top: 1px solid #1e293b;
+    }
+    .corridor-scroll label {
+      color: #7dd3fc;
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      white-space: nowrap;
+    }
+    #corridorSlider {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 8px;
+      border-radius: 8px;
+      background: #1e293b;
+      border: 1px solid #38bdf8;
+      cursor: pointer;
+    }
+    #corridorSlider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #38bdf8;
+      border: 2px solid #e0f2fe;
+    }
+    #corridorSliderLabel {
+      min-width: 148px;
+      text-align: right;
+      color: #e2e8f0;
+      font-size: 0.68rem;
+      font-weight: 700;
+    }
+
+    .wtt-clock {
+      background: #030712;
+      border: 1px solid #38bdf8;
+      border-radius: 4px;
+      padding: 2px 10px 3px;
+      text-align: right;
+      min-width: 132px;
+      box-shadow: inset 0 0 12px rgba(56, 189, 248, 0.28);
+    }
+    .wtt-clock-label { font-size: 0.55rem; letter-spacing: 1.2px; color: #7dd3fc; }
+    .wtt-clock-time { font-size: 1.02rem; font-weight: 800; color: #4ade80; letter-spacing: 1px; line-height: 1.1; }
+    .wtt-clock-sub { font-size: 0.55rem; color: #94a3b8; }
+
+    /* 2 & 3. Consoles */
+    .console-split { display: flex; width: 100%; height: 100%; overflow: hidden; }
+    .panel-sidebar {
+      width: 430px;
+      background: #0b1120;
+      border-right: 1px solid #1e293b;
+      overflow-y: auto;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .panel-content {
+      flex: 1;
+      background: #030712;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    /* Cards */
+    .card {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-radius: 6px;
+      padding: 12px;
+    }
+    .card-title {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: #94a3b8;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* AI decision engine — judge-facing blueprint */
+    #secAI {
+      flex-direction: column;
+      padding: 12px 14px 16px;
+      overflow-y: auto;
+      gap: 10px;
+      background: #030712;
+    }
+    #secHorizon {
+      flex-direction: column;
+      padding: 10px 12px 12px;
+      overflow: hidden;
+      min-height: 0;
+      background: #030712;
+    }
+    #secHorizon > .card {
+      flex: 1;
+      min-height: 0;
+      overflow: auto;
+      margin: 0;
+    }
+    .horizon-toggle {
+      background: #1e293b;
+      border: 1px solid #334155;
+      color: #94a3b8;
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 700;
+      font-size: 0.7rem;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .horizon-toggle.active { background: #38bdf8; color: #030712; border-color: #38bdf8; }
+    .horizon-toggle:hover:not(.active) { background: #334155; color: #fff; }
+    .ai-mission { border-left: 4px solid #38bdf8; }
+    .ai-kicker {
+      font-size: 0.62rem;
+      font-weight: 800;
+      letter-spacing: 0.8px;
+      color: #7dd3fc;
+      margin-bottom: 4px;
+    }
+    .ai-mission h2 {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #f8fafc;
+      line-height: 1.35;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .ai-lead {
+      margin-top: 6px;
+      font-size: 0.74rem;
+      line-height: 1.5;
+      color: #cbd5e1;
+      max-width: 980px;
+    }
+    .ai-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .ai-chip {
+      min-width: 140px;
+      background: #030712;
+      border: 1px solid #1e293b;
+      border-radius: 4px;
+      padding: 6px 10px;
+    }
+    .ai-chip .k {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      color: #94a3b8;
+      text-transform: uppercase;
+    }
+    .ai-chip .v {
+      margin-top: 2px;
+      font-size: 0.86rem;
+      font-weight: 800;
+      color: #e2e8f0;
+    }
+    .ai-steps { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+    .ai-step {
+      background: #111827;
+      border: 1px solid #1f2937;
+      border-top: 3px solid #38bdf8;
+      border-radius: 6px;
+      padding: 10px;
+    }
+    .ai-step .num {
+      font-size: 0.6rem;
+      font-weight: 800;
+      letter-spacing: 0.6px;
+      color: #38bdf8;
+    }
+    .ai-step h3 {
+      margin: 3px 0 4px;
+      font-size: 0.76rem;
+      color: #f8fafc;
+      letter-spacing: 0;
+      text-transform: none;
+    }
+    .ai-step p { font-size: 0.68rem; line-height: 1.45; color: #cbd5e1; }
+    .ai-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .ai-math { font-size: 0.72rem; line-height: 1.55; color: #cbd5e1; }
+    .ai-math .formula { overflow-x: auto; margin: 6px 0; color: #e2e8f0; }
+    .ai-math ul { margin: 4px 0 0 16px; }
+    .ai-math li { margin: 2px 0; }
+    .ai-plain {
+      margin-top: 8px;
+      padding-top: 6px;
+      border-top: 1px solid #1e293b;
+      color: #94a3b8;
+      font-size: 0.68rem;
+      line-height: 1.45;
+    }
+    .ai-rule {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 6px;
+      margin-bottom: 7px;
+      font-size: 0.68rem;
+      line-height: 1.4;
+      color: #cbd5e1;
+    }
+    .ai-rule b { color: #e2e8f0; }
+    .ai-rule .n {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      background: rgba(34, 197, 94, 0.15);
+      color: #4ade80;
+      font-weight: 800;
+      font-size: 0.62rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .proof-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+    .proof-k {
+      font-size: 0.58rem;
+      font-weight: 800;
+      letter-spacing: 0.45px;
+      text-transform: uppercase;
+      color: #94a3b8;
+    }
+    .proof-v { font-size: 0.78rem; font-weight: 700; color: #f8fafc; margin-top: 1px; }
+    #aiPolicyTable td { font-size: 0.66rem; }
+    #aiPolicyTable tr.ai-on td { background: rgba(56, 189, 248, 0.1); color: #e0f2fe; }
+    @media (max-width: 1100px) {
+      .ai-steps, .ai-split { grid-template-columns: 1fr 1fr; }
+    }
+
+    .plan-card {
+      background: #030712;
+      border: 1px solid #1f2937;
+      border-radius: 5px;
+      padding: 10px;
+      margin-bottom: 8px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .plan-card.active { border-color: #38bdf8; background: rgba(56, 189, 248, 0.08); box-shadow: 0 0 10px rgba(56, 189, 248, 0.2); }
+    .plan-header { display: flex; justify-content: space-between; font-weight: 700; font-size: 0.78rem; }
+
+    .btn-action {
+      width: 100%;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 4px;
+      font-weight: 700;
+      font-size: 0.74rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-green { background: #22c55e; color: #030712; }
+    .btn-green:hover { background: #16a34a; }
+    .btn-red { background: rgba(239, 68, 68, 0.2); border: 1px solid #ef4444; color: #fca5a5; }
+    .btn-red:hover { background: #ef4444; color: #fff; }
+    .btn-amber { background: rgba(245, 158, 11, 0.2); border: 1px solid #f59e0b; color: #fcd34d; }
+    .btn-amber:hover { background: #f59e0b; color: #030712; }
+    .btn-blue { background: #0284c7; color: #fff; }
+    .btn-blue:hover { background: #0369a1; }
+
+    /* Tables */
+    table { width: 100%; border-collapse: collapse; font-size: 0.7rem; }
+    th, td { padding: 6px 10px; text-align: left; border-bottom: 1px solid #1e293b; }
+    th { color: #94a3b8; background: #0b1120; text-transform: uppercase; font-size: 0.62rem; }
+    .tag { padding: 2px 6px; border-radius: 3px; font-weight: bold; font-size: 0.62rem; }
+    .tag-tms { background: #0284c7; color: #fff; }
+    .tag-tdms { background: #d97706; color: #fff; }
+    .tag-smms { background: #16a34a; color: #fff; }
+
+    /* Permission Badges */
+    .status-badge {
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .status-pending { background: rgba(245, 158, 11, 0.15); color: #facc15; border: 1px solid #f59e0b; }
+    .status-sanctioned { background: rgba(34, 197, 94, 0.15); color: #4ade80; border: 1px solid #22c55e; }
+    .status-rejected { background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444; }
+
+    /* Leaflet train headboard: dark plate, coloured edge, side-view mark */
+    .leaflet-div-icon.custom-train-div {
+      background: transparent !important;
+      border: none !important;
+      width: auto !important;
+      height: auto !important;
+    }
+    .train-map-marker {
+      --mark: #38bdf8;
+      display: inline-flex;
+      width: max-content;
+      padding: 1px 4px 1px 2px;
+      font-size: 9px;
+      font-weight: 800;
+      font-family: monospace;
+      letter-spacing: 0.2px;
+      white-space: nowrap;
+      color: #f8fafc;
+      background: rgba(7, 16, 28, 0.94);
+      border: 1px solid rgba(226, 232, 240, 0.4);
+      border-left: 3px solid var(--mark);
+      border-radius: 2px;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.75);
+      align-items: center;
+      gap: 3px;
+    }
+    .train-map-marker svg { display: block; flex: none; }
+
+    /* KAVACH HUD Alert on Map */
+    #kavachMapAlert {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: rgba(220, 38, 38, 0.95);
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      padding: 8px 14px;
+      color: #ffffff;
+      z-index: 1000;
+      font-family: monospace;
+      display: none;
+      box-shadow: 0 0 25px rgba(220, 38, 38, 0.8);
+    }
+
+    /* Toast HUD */
+    #hudAlert {
+      position: absolute;
+      top: 14px;
+      right: 18px;
+      background: rgba(15, 23, 42, 0.97);
+      border: 1px solid #38bdf8;
+      border-radius: 6px;
+      padding: 10px 16px;
+      display: none;
+      z-index: 9999;
+      box-shadow: 0 0 25px rgba(0,0,0,0.9);
+      min-width: 320px;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top CRIS Ribbon -->
+  <header>
+    <div style="display:flex; align-items:center; gap:10px;">
+      <i class="fa-solid fa-train-subway" style="font-size: 1.05rem; color: #fff;"></i>
+      <div>
+        <div class="gov-title">CENTRAL RAILWAY &bull; AUTOMATIC BLOCK PLANNING VDU CONSOLE (SIH-26027)</div>
+        <div class="gov-sub">Section: Mumbai CSMT (KM 0.0) ➔ Karjat (KM 100.0) ➔ Lonavala (KM 128.0) ➔ Pune Junction (KM 192.0)</div>
+      </div>
+    </div>
+    <div style="display:flex; align-items:center; gap:14px;">
+      <div class="wtt-clock mono" id="wttClockBox" title="Working timetable clock">
+        <div class="wtt-clock-label">WTT CLOCK</div>
+        <div class="wtt-clock-time" id="wttClock">04:00:00</div>
+        <div class="wtt-clock-sub" id="wttClockSub">TIMETABLE TRACKING</div>
+      </div>
+      <div class="mono" style="font-size:0.75rem;">
+        SOLVER: <span style="color:#4ade80;">GOOGLE OR-TOOLS CP-SAT ACTIVE</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Global Navigation Switcher -->
+  <div class="nav-bar">
+    <div class="pills">
+      <button class="btn-nav active" id="tabMap" onclick="switchSection('MAP')">
+        <i class="fa-solid fa-map-location-dot"></i> Situation Monitoring Map
+      </button>
+      <button class="btn-nav" id="tabOfficer" onclick="switchSection('OFFICER')">
+        <i class="fa-solid fa-screwdriver-wrench"></i> Divisional Maintenance Officer (Asset Console)
+      </button>
+      <button class="btn-nav" id="tabChief" onclick="switchSection('CHIEF')">
+        <i class="fa-solid fa-tower-broadcast"></i> Section Controller / Chief Controller
+      </button>
+      <button class="btn-nav" id="tabAI" onclick="switchSection('AI')">
+        <i class="fa-solid fa-brain"></i> AI Decision Engine & Mathematical Blueprint
+      </button>
+      <button class="btn-nav" id="tabHorizon" onclick="switchSection('HORIZON')">
+        <i class="fa-solid fa-calendar-days"></i> Weekly / Monthly Plan
+      </button>
+    </div>
+    <div class="nav-status mono">
+      Workflow State: <strong id="globalWorkflowStatus" style="color:#facc15;">Step 1: AI Bundled Plan Ready &bull; Awaiting Officer Transmission</strong>
+    </div>
+  </div>
+
+  <!-- Live corridor ribbon. Figures come from metrics.py after each solve. -->
+  <div class="kpi-row mono" id="kpiRow" title="Waiting for the block solver">
+    <div class="kpi-cell" title="Whether CP-SAT found a block that fits the timetable">
+      <div class="kpi-label">Plan</div>
+      <div class="kpi-val" id="kpiPlan" style="color:#94a3b8;">WAITING</div>
+      <div class="kpi-sub" id="kpiPlanSub">Solver has not answered yet</div>
+    </div>
+    <div class="kpi-cell" title="Chaos score. Lower means the timetable is left alone.">
+      <div class="kpi-label">Disturbance</div>
+      <div class="kpi-val" id="kpiChaos">—</div>
+      <div class="kpi-sub" id="kpiChaosSub">Chaos score from the solver</div>
+    </div>
+    <div class="kpi-cell" title="Minutes saved by doing nearby defects in one possession">
+      <div class="kpi-label">Time saved</div>
+      <div class="kpi-val" id="kpiSaved">—</div>
+      <div class="kpi-sub" id="kpiSavedSub">Separate blocks versus one block</div>
+    </div>
+    <div class="kpi-cell" title="Network ROI. Share of track time given back by bundling.">
+      <div class="kpi-label">Bundling</div>
+      <div class="kpi-val" id="kpiGain">—</div>
+      <div class="kpi-sub" id="kpiGainSub">Less time the track is blocked</div>
+    </div>
+    <div class="kpi-cell" title="Defects covered if this plan is booked">
+      <div class="kpi-label">Defects</div>
+      <div class="kpi-val" id="kpiDefects">—</div>
+      <div class="kpi-sub" id="kpiDefectsSub">Faults covered by this plan</div>
+    </div>
+    <div class="kpi-cell" title="Possession windows the solver booked">
+      <div class="kpi-label">Blocks</div>
+      <div class="kpi-val" id="kpiBlocks">—</div>
+      <div class="kpi-sub" id="kpiBlocksSub">Machines out on the block</div>
+    </div>
+    <div class="kpi-cell" title="Passenger and goods trains the block moves">
+      <div class="kpi-label">Trains shifted</div>
+      <div class="kpi-val" id="kpiShifted">—</div>
+      <div class="kpi-sub" id="kpiShiftedSub">Passengers and goods</div>
+    </div>
+    <div class="kpi-cell" title="Post-hoc knock-on cost. Two following services are assumed affected.">
+      <div class="kpi-label">Cascade impact</div>
+      <div class="kpi-val" id="kpiCascade">—</div>
+      <div class="kpi-sub" id="kpiCascadeSub">Two following services</div>
+    </div>
+    <div class="kpi-cell" title="Trains actually on the corridor at the WTT clock">
+      <div class="kpi-label">On the line</div>
+      <div class="kpi-val" id="kpiOnLine" style="color:#4ade80;">—</div>
+      <div class="kpi-sub" id="kpiOnLineSub">Reading the timetable</div>
+    </div>
+    <div class="kpi-cell kpi-order" title="Whether the section controller has sanctioned the block">
+      <div class="kpi-label">Block order</div>
+      <div class="kpi-val" id="kpiSanction" style="color:#facc15;">DRAFT</div>
+      <div class="kpi-sub" id="kpiSanctionSub">Not sent yet</div>
+    </div>
+  </div>
+
+  <!-- Primary Viewport Container -->
+  <div class="viewport-container">
+
+    <!-- Toast HUD -->
+    <div id="hudAlert">
+      <div id="hudTitle" style="font-weight:bold; font-size:0.8rem; color:#38bdf8;"></div>
+      <div id="hudDesc" style="font-size:0.72rem; color:#cbd5e1; margin-top:3px;"></div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- 1. SITUATION MONITORING MAP (CSMT TO PUNE JN 192 KM) -->
+    <!-- ============================================================= -->
+    <div class="page-section active" id="secMap">
+      <div class="map-split">
+        <!-- Leaflet GIS Map with Live Moving Trains -->
+        <div id="gisMap"></div>
+
+        <!-- KAVACH Auto-Braking Alert Overlay -->
+        <div id="kavachMapAlert">
+          <div style="font-weight:bold; font-size:0.75rem;"><i class="fa-solid fa-triangle-exclamation"></i> KAVACH (TCAS) AUTO-BRAKING TRIGGERED</div>
+          <div id="kavachDetail" style="font-size:0.7rem; margin-top:2px;">
+            No train is inside the closed line.
+          </div>
+        </div>
+
+        <div class="map-side-telemetry">
+          <div class="card">
+            <div class="card-title"><span>Corridor Telemetry Status</span><span class="mono" style="color:#38bdf8;">CSMT &rarr; PUNE (192 KM)</span></div>
+            <div style="font-size:0.72rem; line-height:1.6; color:#cbd5e1;">
+              <div>&bull; <strong>Total Span:</strong> 192.0 km &bull; 4 sections &bull; quadruple, double, ghat triple, plateau double</div>
+              <div>&bull; <strong>Ghat Bottleneck:</strong> Karjat (KM 100.0) to Lonavala (KM 128.0)</div>
+              <div>&bull; <strong>Sanction State:</strong> <span id="mapSanctionBadge" class="status-badge status-pending">NO PERMISSION YET</span></div>
+              <div>&bull; <strong>Track Line State:</strong> <span id="mapMidLineStatus" style="color:#4ade80;">All lines open. No caution order.</span></div>
+              <div id="executionBanner">&bull; <strong>Possession:</strong> Not locked. Trains are on the working timetable.</div>
+            </div>
+          </div>
+
+          <div class="card" style="flex:1;">
+            <div class="card-title"><span>Bhor Ghat Altitude Profile (1:37 Gradient)</span><span class="mono">ELEVATION (m)</span></div>
+            <div style="position:relative; height:150px;">
+              <canvas id="chartElev"></canvas>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Machine Enroute Telemetry</span><span class="mono" style="color:#4ade80;">DEPOT LINK</span></div>
+            <div id="machineTelemetryBody" style="font-size:0.7rem; line-height:1.6; color:#94a3b8;">
+              No machine has been given a possession. Depot locations appear here after the solver locks a window.
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Four-section corridor schematic (CSMT quadruple → ghat triple → Pune double) -->
+      <div class="schematic-panel">
+        <div class="schematic-legend mono" id="trainLegend">
+          <span style="color:#64748b;">TRAIN MARKS</span>
+          <span style="margin-left:auto; color:#94a3b8;">S1 QUADRUPLE · S2 DOUBLE · S3 GHAT 3-TRACK · S4 PLATEAU DOUBLE</span>
+        </div>
+        <div class="corridor-scroll mono">
+          <label for="corridorSlider">CORRIDOR SLIDER</label>
+          <input id="corridorSlider" type="range" min="0" max="192" step="0.1" value="0" aria-label="Slide along CSMT to Pune">
+          <span id="corridorSliderLabel">CSMT · KM 0.0</span>
+        </div>
+        <div class="schematic-stage">
+          <div class="rail-gutter mono" aria-hidden="true">
+            <span style="top:26px; color:#facc15;">UP FAST</span>
+            <span style="top:54px; color:#fb923c;">UP SLOW</span>
+            <span style="top:82px; color:#e2e8f0;">MID</span>
+            <span style="top:110px; color:#38bdf8;">DN SLOW</span>
+            <span style="top:138px; color:#4ade80;">DN FAST</span>
+          </div>
+          <div class="schematic-box" id="schematicScroller">
+          <svg viewBox="0 0 4800 160" id="svgCorridor">
+            <defs>
+              <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+                <path d="M 40 0 L 0 0 0 40" fill="none" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+              </pattern>
+              <pattern id="hazard" width="16" height="16" patternTransform="rotate(45 0 0)" patternUnits="userSpaceOnUse">
+                <line x1="0" y1="0" x2="0" y2="16" stroke="#f59e0b" stroke-width="8" />
+                <line x1="8" y1="0" x2="8" y2="16" stroke="#b45309" stroke-width="8" />
+              </pattern>
+            </defs>
+            <rect width="100%" height="100%" fill="url(#grid)" />
+            <g id="schematicSections"></g>
+            <g id="schematicRails"></g>
+            <g id="schematicCrossovers"></g>
+            <g id="schematicStationLabels" font-family="monospace" font-size="8" fill="#94a3b8" text-anchor="middle"></g>
+            <rect id="schematicBlockZone" x="900" y="110" width="120" height="24" fill="rgba(245, 158, 11, 0.15)" stroke="#f59e0b" stroke-width="1.5" stroke-dasharray="4,4" rx="3" />
+            <text id="schematicBlockText" x="960" y="126" fill="#facc15" font-size="8" font-weight="bold" text-anchor="middle" font-family="monospace">PROPOSED BLOCK</text>
+            <g id="schematicWork"></g>
+            <rect id="emergencyBlockZone" x="0" y="0" width="0" height="0" fill="rgba(239, 68, 68, 0.35)" stroke="#ef4444" stroke-width="2" rx="3" visibility="hidden" />
+            <text id="emergencyBlockText" x="0" y="0" fill="#fecaca" font-size="8" font-weight="bold" text-anchor="middle" font-family="monospace" visibility="hidden">EMERGENCY KM 111.4</text>
+            <circle cx="980" cy="122" r="4.5" fill="#22c55e" id="sigMidLine" />
+            <text x="980" y="112" fill="#22c55e" font-size="7.5" text-anchor="middle" font-family="monospace" id="sigMidLabel">S-14 (GREEN)</text>
+            <g id="schematicTrains"></g>
+          </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- 2. DIVISIONAL MAINTENANCE OFFICER (ASSET CONSOLE) -->
+    <!-- ============================================================= -->
+    <div class="page-section" id="secOfficer">
+      <div class="console-split">
+        <div class="panel-sidebar">
+          <div class="card" style="border-left: 4px solid #38bdf8;">
+            <div class="card-title">
+              <span>AI Bundling Solution (Step 1)</span>
+              <span class="mono" style="color:#4ade80;">FORMULA 2 VALID</span>
+            </div>
+            <div style="font-size:0.72rem; line-height:1.65; color:#cbd5e1;">
+              <div id="officerClusterLine">&bull; <strong>Spatial Cluster:</strong> Waiting for the solver</div>
+              <div>&bull; <strong>Bundled departments:</strong> <span id="officerDepartments">Waiting for the solver</span></div>
+              <div>&bull; <strong>Sequential time:</strong> <span id="officerSequential">Waiting for the solver</span></div>
+              <div>&bull; <strong>Bundled window:</strong> <span id="officerWindow">Waiting for the solver</span></div>
+              <div>&bull; <strong>Power sector:</strong> <span id="officerPower">Waiting for the solver</span></div>
+              <div id="officerSaved" style="color:#94a3b8; font-weight:bold; margin-top:2px;">Waiting for the solver</div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Machinery & Gang Allocation</span><span class="mono" id="officerResourceBadge">FROM THE CLUSTER</span></div>
+            <div id="officerMachineBody" style="font-size:0.7rem; line-height:1.65; color:#cbd5e1;">
+              Waiting for the solver.
+            </div>
+            <div id="officerCrewLine" style="font-size:0.7rem; color:#facc15; margin-top:4px;"></div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Maintenance Permission Status</span><span class="mono">DOSSIER</span></div>
+            <div style="margin: 6px 0;">
+              <span id="officerPermBadge" class="status-badge status-pending">NO REQUEST FILED</span>
+            </div>
+            <div id="officerPermNote" style="font-size:0.68rem; color:#94a3b8; line-height:1.5;">
+              AI proposal compiled. Click below to transmit the complete multi-department dossier to the Section Controller's COA console.
+            </div>
+            <button class="btn-action btn-blue" id="btnSubmitDossier" onclick="officerSubmitDossier()" style="margin-top:10px;">
+              <i class="fa-solid fa-paper-plane"></i> TRANSMIT REQUEST TO CONTROLLER
+            </button>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Dossier audit</span><span class="mono">LATEST FILINGS</span></div>
+            <div id="officerAuditBody" style="font-size:0.66rem; line-height:1.55; color:#94a3b8;">Waiting for the audit log.</div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Safety & Disconnection Permits</span><span class="mono">MANDATORY</span></div>
+            <div id="safetyChecklist" style="font-size:0.68rem; line-height:1.7; color:#94a3b8;">
+              Permits stay open until the possession clock reaches each step. A green mark is written only after the backend reports that step.
+            </div>
+          </div>
+        </div>
+
+        <div class="panel-content">
+          <div class="card">
+            <div class="card-title"><span>Multi-Department Defect Backlog (TMS, TDMS, SMMS)</span><span class="mono">INTEGRATED REPOSITORY</span></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Task ID</th>
+                  <th>Dept</th>
+                  <th>Chainage</th>
+                  <th>Maintenance Item</th>
+                  <th>Urgency</th>
+                  <th>ML ESCALATION FORECAST (DAYS)</th>
+                  <th>Required Duration</th>
+                  <th>Allocated Machine</th>
+                  <th>Manpower</th>
+                  <th>Bundling Cluster</th>
+                </tr>
+              </thead>
+              <tbody class="mono" id="defectBacklogBody"></tbody>
+            </table>
+          </div>
+
+          <div class="card" style="border-left: 4px solid #22c55e;">
+            <div class="card-title"><span>Official Maintenance Sanction Docket</span><span class="mono" id="docketBadge">STATUS: DRAFT</span></div>
+            <div id="docketContent" style="font-size:0.72rem; line-height:1.7; color:#cbd5e1;">
+              <strong>Sanctioning Authority:</strong> Section Controller / Chief Controller (Divisional Control Office)<br>
+              <strong>Target Segment:</strong> <span id="docketTarget">Waiting for the solver</span><br>
+              <strong>Approved Maintenance Window:</strong> <span id="docketWindow">Pending Controller Selection</span><br>
+              <strong>COA Order Reference ID:</strong> <span id="docketMemo" class="mono" style="color:#94a3b8;">Not Issued</span><br>
+              <strong>Track Possession Authority:</strong> <span id="docketPossession" style="color:#facc15;">Awaiting Section Sanction</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- 3. SECTION CONTROLLER / CHIEF CONTROLLER (TRAFFIC CONSOLE) -->
+    <!-- ============================================================= -->
+    <div class="page-section" id="secChief">
+      <div class="console-split">
+        <div class="panel-sidebar">
+          <div class="card">
+            <div class="card-title">
+              <span>Incoming Dossier from Maint. Office</span>
+              <span class="mono" id="chiefIncomingStatus" style="color:#4ade80;">READY FOR REVIEW</span>
+            </div>
+            <div style="font-size:0.7rem; color:#cbd5e1; line-height:1.6;">
+              <div>&bull; <strong>Dossier ref:</strong> <span id="chiefDossierRef">Not issued</span></div>
+              <div id="chiefRequestLine">&bull; <strong>Requested line:</strong> Waiting for the solver</div>
+              <div>&bull; <strong>Duration needed:</strong> <span id="chiefDuration">Waiting for the solver</span></div>
+              <div>&bull; <strong>Resources:</strong> <span id="chiefResources">Waiting for the solver</span></div>
+              <div>&bull; <strong>Filed by:</strong> <span id="chiefFiledBy">—</span></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Possession audit</span><span class="mono">LATEST ORDERS</span></div>
+            <div id="chiefAuditBody" style="font-size:0.66rem; line-height:1.55; color:#94a3b8;">Waiting for the audit log.</div>
+          </div>
+
+          <!-- Section Controller Active Blockage Management -->
+          <div class="card" style="border-left: 4px solid #38bdf8;">
+            <div class="card-title">
+              <span>Section Controller &bull; Corridor Control</span>
+              <span class="mono" style="color:#38bdf8;">ACTIVE AUTHORITY</span>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px; margin-bottom:10px;">
+              <div>
+                <label style="font-size:0.65rem; color:#94a3b8;">Corridor Sector:</label>
+                <select id="ctrlSectionSelect" style="width:100%; background:#030712; color:#fff; border:1px solid #334155; padding:5px; border-radius:4px; font-size:0.7rem; font-family:monospace;">
+                  <option value="GHAT">Ghat Bottleneck (Karjat &ndash; Lonavala)</option>
+                  <option value="SUBURBAN">Suburban (CSMT &ndash; Karjat)</option>
+                  <option value="PUNE">Pune Plateau (Lonavala &ndash; Pune)</option>
+                </select>
+              </div>
+              <div>
+                <label style="font-size:0.65rem; color:#94a3b8;">Target Line:</label>
+                <select id="ctrlLineSelect" style="width:100%; background:#030712; color:#fff; border:1px solid #334155; padding:5px; border-radius:4px; font-size:0.7rem; font-family:monospace;">
+                  <option value="MID">MID Track (Ghat Work Track)</option>
+                  <option value="DN">Down Line (CSMT &rarr; Pune)</option>
+                  <option value="UP">Up Line (Pune &rarr; CSMT)</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns: 1fr 1fr 1fr; gap:6px;">
+              <button class="btn-action btn-red" onclick="controllerManualBlock()"><i class="fa-solid fa-hand"></i> Block Line</button>
+              <button class="btn-action btn-amber" onclick="controllerManualCaution()"><i class="fa-solid fa-triangle-exclamation"></i> Caution</button>
+              <button class="btn-action btn-green" onclick="controllerManualClear()"><i class="fa-solid fa-check"></i> Clear Line</button>
+            </div>
+          </div>
+
+          <!-- AI 3 Optimal Block Options across 4 Windows -->
+          <div class="card" style="border-left: 4px solid #facc15;">
+            <div class="card-title">
+              <span>Three block options</span>
+              <span class="mono" style="color:#38bdf8;">OR-TOOLS</span>
+            </div>
+            <div style="font-size:0.67rem; color:#94a3b8; margin-bottom:8px;">
+              Punctuality, asset-first, and mega-block profiles for the line and sector selected above.
+            </div>
+
+            <!-- Option 1: Night Corridor Block (Window 1) -->
+            <div class="plan-card active" id="chiefCard1" onclick="controllerSelectOption(1)">
+              <div class="plan-header">
+                <span style="color:#38bdf8;">Option 1: Night Corridor Block</span>
+                <span class="mono">WAITING</span>
+              </div>
+              <div style="font-size:0.68rem; color:#94a3b8; margin:2px 0;">Waiting for the solver</div>
+              <div style="font-size:0.66rem; color:#94a3b8;"></div>
+            </div>
+
+            <div class="plan-card" id="chiefCard2" onclick="controllerSelectOption(2)">
+              <div class="plan-header">
+                <span style="color:#cbd5e1;">Option 2: Asset-First Window</span>
+                <span class="mono">WAITING</span>
+              </div>
+              <div style="font-size:0.68rem; color:#94a3b8; margin:2px 0;">Waiting for the solver</div>
+              <div style="font-size:0.66rem; color:#94a3b8;"></div>
+            </div>
+
+            <div class="plan-card" id="chiefCard3" onclick="controllerSelectOption(3)">
+              <div class="plan-header">
+                <span style="color:#cbd5e1;">Option 3: Mega Block</span>
+                <span class="mono">WAITING</span>
+              </div>
+              <div style="font-size:0.68rem; color:#94a3b8; margin:2px 0;">Waiting for the solver</div>
+              <div style="font-size:0.66rem; color:#94a3b8;"></div>
+            </div>
+
+            <!-- Decision Buttons -->
+            <label for="rejectReason" style="font-size:0.65rem; color:#94a3b8; display:block; margin-top:8px;">Reject reason</label>
+            <input id="rejectReason" type="text" value="Corridor capacity constraints" aria-label="Reject reason" style="width:100%; margin-bottom:8px; background:#030712; color:#fff; border:1px solid #334155; padding:5px; border-radius:4px; font-size:0.7rem; font-family:monospace;">
+            <div style="display:flex; flex-direction:column; gap:6px; margin-top:10px;">
+              <button class="btn-action btn-green" onclick="controllerApproveBlock()">
+                <i class="fa-solid fa-circle-check"></i> APPROVE & SANCTION SELECTED BLOCK
+              </button>
+              <button class="btn-action btn-amber" onclick="controllerForceShift()">
+                <i class="fa-solid fa-clock-rotate-left"></i> FORCE TIME SHIFT (+30 MINS)
+              </button>
+              <button class="btn-action btn-red" onclick="controllerRejectBlock()">
+                <i class="fa-solid fa-ban"></i> REJECT BLOCK (CONGESTION HOLD)
+              </button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Emergency Block Preemption</span><span class="mono" style="color:#ef4444;">UNSCHEDULED</span></div>
+            <div style="font-size:0.68rem; color:#94a3b8; margin-bottom:8px;">Simulate unscheduled rail web fracture to trigger 24/7 instant preemption.</div>
+            <button class="btn-action btn-red" onclick="triggerEmergencyFracture()">
+              <i class="fa-solid fa-triangle-exclamation"></i> SIMULATE RAIL FRACTURE KM 111.4
+            </button>
+          </div>
+        </div>
+
+        <div class="panel-content">
+          <div class="card" style="border-left: 4px solid #38bdf8;">
+            <div class="card-title"><span>AI Section Controller Advisory</span><span class="mono" style="color:#4ade80;">DISPATCH GUIDANCE</span></div>
+            <div id="chiefAdvisoryText" style="font-size:0.75rem; line-height:1.7; color:#e2e8f0;">
+              <strong>Recommendation:</strong> Waiting for the solver. The window, the delays, and the closed chainage shown here come from the CP-SAT result.
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-title"><span>Active Train Telemetry Feed (Control Office Application &bull; COA)</span><span class="mono">LIVE SPEEDS</span></div>
+            <table>
+              <thead>
+                <tr>
+                  <th>Train ID</th>
+                  <th>Train Name</th>
+                  <th>Track Line</th>
+                  <th>Current Station Segment</th>
+                  <th>Speed</th>
+                  <th>Section Dispatch Regulation</th>
+                </tr>
+              </thead>
+              <tbody class="mono" id="coaTableBody">
+                <!-- Populated via JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================= -->
+    <!-- 4. AI DECISION ENGINE & MATHEMATICAL BLUEPRINT -->
+    <!-- ============================================================= -->
+    <div class="page-section" id="secAI">
+      <div class="card ai-mission">
+        <div class="ai-kicker mono">SIH-26027 · CORE OBJECTIVE</div>
+        <h2>AI-powered automatic block planning to maximise asset availability for train operations on Indian Railways.</h2>
+        <p class="ai-lead">
+          The engine reads the open maintenance backlog, packs nearby jobs into one possession, and asks Google OR-Tools CP-SAT for the earliest window that keeps every train clear of the closed line. The minutes of track handed back, with the working timetable still intact, are the proof that this objective is met.
+        </p>
+        <div class="ai-chips mono">
+          <div class="ai-chip">
+            <div class="k">Track given back</div>
+            <div class="v" id="aiChipSaved">—</div>
+          </div>
+          <div class="ai-chip">
+            <div class="k">Passenger trains moved</div>
+            <div class="v" id="aiChipPass">—</div>
+          </div>
+          <div class="ai-chip">
+            <div class="k">Chaos score Z</div>
+            <div class="v" id="aiChipChaos">—</div>
+          </div>
+          <div class="ai-chip">
+            <div class="k">This solve</div>
+            <div class="v" id="aiChipStatus" style="color:#facc15;">WAITING</div>
+          </div>
+        </div>
+        <p class="ai-plain" id="aiVerdict" style="border:none; padding-top:8px; margin-top:4px;">
+          Waiting for CP-SAT. The four numbers above fill from the selected plan.
+        </p>
+      </div>
+
+      <div class="ai-steps">
+        <div class="ai-step">
+          <div class="num mono">01 · FORMULA 1 · defects.py</div>
+          <h3>Score every open job</h3>
+          <p>Track (TMS), traction (TDMS) and signal (SMMS) defects share one backlog. Each job receives a score from 0 to 100 from safety, days overdue, an existing speed restriction, and how busy the section is. Higher scores are planned first.</p>
+        </div>
+        <div class="ai-step" style="border-top-color:#22c55e;">
+          <div class="num mono" style="color:#4ade80;">02 · FORMULA 2 · defects.py</div>
+          <h3>Pack them into one block</h3>
+          <p>Jobs on the same running line and the same 25 kV feeder, within 3 km of each other, share one possession. Work time is the longest job plus 15 minutes to mobilise. Separate visits would have added those durations together.</p>
+        </div>
+        <div class="ai-step" style="border-top-color:#facc15;">
+          <div class="num mono" style="color:#facc15;">03 · CP-SAT · solver.py</div>
+          <h3>Fit it to the timetable</h3>
+          <p>OR-Tools owns a start minute for each bundle across the 24-hour clock. The window covers the depot run, the work, the return run, and protection or earthing. The train stays off that chainage for the whole possession.</p>
+        </div>
+        <div class="ai-step" style="border-top-color:#a855f7;">
+          <div class="num mono" style="color:#d8b4fe;">04 · ROI · metrics.py</div>
+          <h3>Count the track returned</h3>
+          <p>Minutes if each defect took its own block, minus minutes inside the bundle, is asset availability returned to operations. Chaos score Z is the disturbance left in the timetable. Both appear on the ribbon and in this panel.</p>
+        </div>
+      </div>
+
+      <div class="ai-split">
+        <div class="card">
+          <div class="card-title"><span>Formula 1 · Priority urgency</span><span class="mono" style="color:#38bdf8;">Pᵢ ∈ [0, 100]</span></div>
+          <div class="ai-math">
+            <div class="formula">$$P_i = 10\,s_i + 0.35\cdot\frac{o_i}{30}\cdot 100 + 15\,v_i + 3\,t_i$$</div>
+            <ul>
+              <li><strong>$s_i$</strong> — safety. Severity ÷ 20, capped at 5.</li>
+              <li><strong>$o_i$</strong> — days overdue, capped at 30.</li>
+              <li><strong>$v_i$</strong> — 1 when a temporary speed restriction is already on, otherwise 0.</li>
+              <li><strong>$t_i$</strong> — traffic density of the section. This corridor uses 5 unless a section supplies its own.</li>
+            </ul>
+            <div class="ai-plain">A severe fracture on a busy section, already under caution, rises above a routine tamp. That order is what the planner protects first.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>Formula 2 · One possession, then its length</span><span class="mono" style="color:#38bdf8;">BUNDLE + ENVELOPE</span></div>
+          <div class="ai-math">
+            <div>Same line, same feeder, next defect within <strong>3.0 km</strong>.</div>
+            <div class="formula">$$T_{bundle}=\max(T_i)+15 \qquad W=\lceil 2\,t_{transit}+T_{bundle}+B\rceil$$</div>
+            <div class="formula">$$Gain=\left(1-\frac{\sum T_{bundle}}{\sum T_{alone}}\right)\times 100$$</div>
+            <ul>
+              <li><strong>$T_{alone}$</strong> — each defect’s own block, added up.</li>
+              <li><strong>$t_{transit}$</strong> — slowest machine, one way: tie tamper from Karjat at 35 km/h, ballast cleaner from Kalyan at 30 km/h, tower wagon from Lonavala at 40 km/h.</li>
+              <li><strong>$B$</strong> — 15 min to isolate and earth both ends on a power block, 5 min of protection on a traffic-only block.</li>
+            </ul>
+            <div class="ai-plain">Gain is the share of possession time handed back to trains. The envelope W is the clock time the solver must keep clear.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-split">
+        <div class="card">
+          <div class="card-title"><span>How CP-SAT searches</span><span class="mono" style="color:#4ade80;">MINIMISE Z</span></div>
+          <div class="ai-math">
+            <div>Each bundle gets a start inside the day. The end is fixed once the envelope is known. Each train may take a delay only up to its patience.</div>
+            <div class="formula">$$\min Z=\sum_{trains} W_{type}\cdot delay+\sum_{blocks} W_{post}\cdot start$$</div>
+            <ul>
+              <li><strong>$W_{type}=300$</strong> for premium, superfast, express and local. <strong>$2$</strong> for freight and bankers.</li>
+              <li><strong>$W_{post}$</strong> is the “bring the block forward” weight on this screen. At 50, every later minute of the start costs 50, so a safe early gap wins.</li>
+            </ul>
+            <div class="ai-plain">Three policies re-solve this same model. Punctuality first keeps the passenger weight at 300. Asset first lowers it and triples $W_{post}$, so the block opens sooner. Mega block halves the passenger weight and sets the freight weight to 1, so a longer engineering window can fit. Every train stays in the safety check.</div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>Rules the search cannot break</span><span class="mono" style="color:#4ade80;">HARD CONSTRAINTS</span></div>
+          <div class="ai-rule"><span class="n">1</span><div><b>No crash.</b> The train is clear before the block opens, or it enters only after the block closes. The check is on the closed running line.</div></div>
+          <div class="ai-rule"><span class="n">2</span><div><b>Premium and superfast stay on time.</b> Their patience is 0 minutes, so Vande Bharat and Deccan Queen class paths keep the working timetable. Express and local may wait at most 15 minutes. Freight and bankers may wait at most 120.</div></div>
+          <div class="ai-rule"><span class="n">3</span><div><b>Division machines are a pool.</b> Two tie tampers, one ballast cleaner, two tower wagons. A machine is booked once per minute.</div></div>
+          <div class="ai-rule"><span class="n">4</span><div><b>25 kV isolation is line-specific.</b> A power block isolates that feeder’s line and earths both ends before work. The other lines keep power and stay open.</div></div>
+          <div class="ai-rule"><span class="n">5</span><div><b>The possession has a fixed length.</b> W sits inside the 24-hour clock. OPTIMAL means this Z is the best. FEASIBLE means a safe plan is in hand inside the time limit.</div></div>
+        </div>
+      </div>
+
+      <div class="ai-split">
+        <div class="card">
+          <div class="card-title"><span>This run · worked numbers</span><span class="mono" id="aiRunBadge" style="color:#94a3b8;">AWAITING SOLVER</span></div>
+          <div class="proof-grid mono">
+            <div>
+              <div class="proof-k">Cluster</div>
+              <div class="proof-v" id="aiCluster">Waiting for the solver</div>
+            </div>
+            <div>
+              <div class="proof-k">Separate jobs → one work clock</div>
+              <div class="proof-v" id="aiBundleMath">—</div>
+            </div>
+            <div>
+              <div class="proof-k">Booked window</div>
+              <div class="proof-v" id="aiWindow">—</div>
+            </div>
+            <div>
+              <div class="proof-k">Corridor gain</div>
+              <div class="proof-v" id="aiGain">—</div>
+            </div>
+            <div>
+              <div class="proof-k">Trains moved</div>
+              <div class="proof-v" id="aiDelays">—</div>
+            </div>
+            <div>
+              <div class="proof-k">Machines on the block</div>
+              <div class="proof-v" id="aiMachines">—</div>
+            </div>
+          </div>
+          <div class="ai-plain" id="aiRunNote">These figures are the selected CP-SAT plan, the same one on the ribbon.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><span>Three policies, one safety model</span><span class="mono" style="color:#38bdf8;">PARETO</span></div>
+          <table id="aiPolicyTable">
+            <thead>
+              <tr>
+                <th>Policy</th>
+                <th>Weights</th>
+                <th>Window</th>
+                <th>Z</th>
+                <th>Saved</th>
+                <th>Moved</th>
+              </tr>
+            </thead>
+            <tbody id="aiPolicyBody">
+              <tr><td colspan="6" style="color:#94a3b8;">Waiting for the three solves.</td></tr>
+            </tbody>
+          </table>
+          <div class="ai-plain" id="aiPolicyNote">Weights are passenger / freight / bring-forward. Pick a row on the Section Controller screen and this table marks the same plan.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><span>What-if · change the objective, keep the rules</span><span class="mono">LIVE RE-SOLVE</span></div>
+        <div class="ai-plain" style="margin-top:0; padding-top:0; border:none;">
+          Raise the passenger weight and the solver spends more of Z to protect punctuality. Raise the bring-forward weight and it hunts an earlier safe gap so the asset is not left until late. The five rules above stay in force.
+        </div>
+        <div style="display:flex; gap:24px; align-items:flex-end; margin-top:10px;">
+          <div style="flex:1;">
+            <label style="font-size:0.72rem; color:#94a3b8;">Passenger delay weight $W_{type}$: <strong id="valPassWeight" style="color:#38bdf8;">300</strong></label>
+            <input id="sliderPassWeight" type="range" min="50" max="500" value="300" style="width:100%;" oninput="document.getElementById('valPassWeight').innerText = this.value">
+          </div>
+          <div style="flex:1;">
+            <label style="font-size:0.72rem; color:#94a3b8;">Bring the block forward $W_{post}$: <strong id="valOverdueWeight" style="color:#facc15;">50</strong></label>
+            <input id="sliderOverdueWeight" type="range" min="10" max="200" value="50" style="width:100%;" oninput="document.getElementById('valOverdueWeight').innerText = this.value">
+          </div>
+          <button class="btn-action btn-blue" style="width:240px;" onclick="reRunWhatIf()">
+            <i class="fa-solid fa-arrows-rotate"></i> RE-SOLVE THREE POLICIES
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ============================================================
+         TAB 5 — WEEKLY / MONTHLY PLANNING HORIZON (calendar_plan.py)
+    ============================================================ -->
+    <div class="page-section" id="secHorizon">
+
+    <div class="card" style="border-left:4px solid #38bdf8;">
+      <div class="card-title">
+        <span>◈ MULTI-DAY POSSESSION PLANNING — ROLLING HORIZON</span>
+        <span class="mono" style="color:#7dd3fc;font-size:0.6rem;" id="horizonMetaLabel">CP-SAT DAY-BY-DAY ROLL-FORWARD</span>
+      </div>
+      <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:12px;">
+        <button class="horizon-toggle active" id="btnHorizonWeekly"
+          onclick="loadHorizonPlan(7)">
+          <i class="fa-solid fa-calendar-week"></i> Weekly View (7 Days)
+        </button>
+        <button class="horizon-toggle" id="btnHorizonMonthly"
+          onclick="loadHorizonPlan(28)">
+          <i class="fa-solid fa-calendar-days"></i> Monthly View (28 Days)
+        </button>
+        <span id="horizonLoadingMsg" class="mono"
+          style="color:#94a3b8;font-size:0.62rem;display:none;">
+          COMPUTING… (28-day runs up to 28 solver calls — please wait)
+        </span>
+      </div>
+
+      <div id="horizonSummaryBar" style="display:none;margin-bottom:12px;padding:8px 12px;
+           background:#0b1120;border:1px solid #1e3050;border-left:3px solid #38bdf8;
+           font-size:0.62rem;color:#94a3b8;letter-spacing:0.5px;" class="mono">
+      </div>
+
+      <div id="horizonWeeksWrap">
+        <div class="mono" style="color:#334455;font-size:0.72rem;padding:12px 0;">
+          SELECT A VIEW TO LOAD THE PLANNING HORIZON
+        </div>
+      </div>
+    </div>
+
+    </div><!-- /secHorizon -->
+
+  </div>
+
+  <script>
+    // -------------------------------------------------------------
+    // SHARED CENTRAL STATE (REACTIVE ACROSS ALL VIEWS)
+    // -------------------------------------------------------------
+    const PLAN_TYPES = ["PUNCTUALITY_FIRST", "ASSET_FIRST", "MEGA_BLOCK"];
+    const FLEET_COLORS = {
+      PREMIUM: "#a855f7", SUPERFAST: "#ec4899", EXPRESS: "#f97316",
+      FREIGHT: "#eab308", LOCAL: "#38bdf8", BANKER: "#4ade80"
+    };
+
+    const sharedState = {
+      dossierSubmitted: false,
+      sanctionStatus: "DRAFT",
+      selectedOption: 1,
+      sanctionMemo: null,
+      freightLoopHeld: false,
+      blockActiveOnMap: false,
+      tsr: null,
+      possession: null,
+      tsrActive: true,
+      candidateOptions: [],
+      targetBundle: null,
+      freightForecastRange: null,
+      lastSystemState: null
+    };
+
+    const API_BASE = window.location.origin.includes(":8000") ? "" : "http://127.0.0.1:8000";
+
+    let stations = [];
+    let corridorSections = [];
+    let fleet = [];
+    let elevationChart = null;
+    let emergencyGeoCircle = null;
+    let wttMinute = 240;
+    let dayMinutes = 1440;
+    let minutesPerSecond = 8;
+    let lastClockMs = 0;
+    let positionPollAt = 0;
+    let serverSamples = {};
+    let serverDriven = false;
+    let serverAt = 0;
+
+    const SCH_W = 4800;
+    const SCH_H = 160;
+    const SCH_MIN_X = 36;
+    const SCH_MAX_X = 4760;
+    const RAIL_Y = {
+      UP_FAST: 26, UP: 26, UP_SLOW: 54, MID: 82, DN_SLOW: 110, DN_FAST: 138, DN: 138
+    };
+    let switchSegments = [];
+    const DEFAULT_SECTIONS = [
+      { id: "SECTION_1", name: "Section 1", detail: "Suburban quadruple line", start_km: 0, end_km: 54 },
+      { id: "SECTION_2", name: "Section 2", detail: "Kalyan–Karjat double line", start_km: 54, end_km: 100 },
+      { id: "SECTION_3", name: "Section 3", detail: "Bhor Ghat bottleneck · 3 track", start_km: 100, end_km: 128 },
+      { id: "SECTION_4", name: "Section 4", detail: "Pune plateau double line", start_km: 128, end_km: 192 }
+    ];
+
+    // Purged Cursor debug logging stub to prevent connection errors
+    function dbgLog() {}
+
+    async function apiGet(path) {
+      const res = await fetch(API_BASE + path);
+      if (!res.ok) throw new Error(path + " failed with status " + res.status);
+      return res.json();
+    }
+
+    async function apiPost(path, body) {
+      const res = await fetch(API_BASE + path, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body || {})
+      });
+      if (!res.ok) throw new Error(path + " failed with status " + res.status);
+      return res.json();
+    }
+
+    function trainsToFleet(trains) {
+      return (trains || []).map(t => ({
+        id: t.id,
+        type: t.type,
+        name: t.name,
+        line: t.line || "UP",
+        km: Number(t.start_km),
+        minKm: Number(t.min_km != null ? t.min_km : Math.min(Number(t.start_km), Number(t.end_km))),
+        maxKm: Number(t.max_km != null ? t.max_km : Math.max(Number(t.start_km), Number(t.end_km))),
+        startMin: Number(t.start_min || 0),
+        endMin: Number(t.end_min || 0),
+        originCode: t.origin_code || "",
+        destCode: t.dest_code || "",
+        waypoints: (t.waypoints || []).map(w => ({
+          m: Number(w.m), km: Number(w.km), line: w.line || t.line || "UP"
+        })).sort((a, b) => a.m - b.m),
+        speedKm: t.priority === 1 ? 1.6 : (t.type === "FREIGHT" ? 0.9 : 1.1),
+        speedKmh: 0,
+        dir: Number(t.end_km) >= Number(t.start_km) ? 1 : -1,
+        color: FLEET_COLORS[t.type] || "#38bdf8",
+        label: t.id,
+        svgId: "vdu_" + String(t.id).replace(/[^A-Za-z0-9_-]/g, "_"),
+        isHeld: false,
+        active: false
+      }));
+    }
+
+    function clockMod(value, span) {
+      return ((value % span) + span) % span;
+    }
+
+    function formatWtt(minute) {
+      const folded = clockMod(minute, dayMinutes);
+      const totalSec = Math.floor(folded * 60 + 1e-6);
+      const hh = Math.floor(totalSec / 3600) % 24;
+      const mm = Math.floor((totalSec % 3600) / 60);
+      const ss = totalSec % 60;
+      const pad = (n) => String(n).padStart(2, "0");
+      return pad(hh) + ":" + pad(mm) + ":" + pad(ss);
+    }
+
+    function paintClock() {
+      const face = document.getElementById("wttClock");
+      if (face) face.textContent = formatWtt(wttMinute);
+    }
+
+    function inDutyWindow(train, minute) {
+      const span = train.endMin - train.startMin;
+      if (!(span > 0)) return false;
+      if (span >= dayMinutes) return true;
+      return clockMod(minute - train.startMin, dayMinutes) < span;
+    }
+
+    function unwrappedMinute(train, minute) {
+      const mapped = train.startMin + clockMod(minute - train.startMin, dayMinutes);
+      return mapped > train.endMin ? train.endMin : mapped;
+    }
+
+    function poseAt(train, minute) {
+      const wps = train.waypoints;
+      if (!wps.length) return null;
+      const clock = unwrappedMinute(train, minute);
+      if (clock <= wps[0].m) return { km: wps[0].km, line: wps[0].line, speed: 0 };
+      const last = wps[wps.length - 1];
+      if (clock >= last.m) return { km: last.km, line: last.line, speed: 0 };
+      for (let i = 0; i < wps.length - 1; i++) {
+        const left = wps[i];
+        const right = wps[i + 1];
+        if (clock < left.m || clock > right.m) continue;
+        const dt = right.m - left.m;
+        if (dt <= 1e-9) return { km: right.km, line: right.line, speed: 0 };
+        const ratio = (clock - left.m) / dt;
+        return {
+          km: left.km + (right.km - left.km) * ratio,
+          line: ratio < 0.5 ? left.line : right.line,
+          speed: Math.abs(right.km - left.km) / dt * 60
+        };
+      }
+      return { km: last.km, line: last.line, speed: 0 };
+    }
+
+    function railCenterY(line) {
+      return RAIL_Y[line] || RAIL_Y.MID;
+    }
+
+    function sourceTagClass(source) {
+      const s = String(source || "").toUpperCase();
+      if (s.includes("TDMS")) return "tag-tdms";
+      if (s.includes("SMMS")) return "tag-smms";
+      return "tag-tms";
+    }
+
+    function renderDefectTable(defects, bundles) {
+      const tbody = document.getElementById("defectBacklogBody");
+      if (!tbody) return;
+      const shown = consoleBundle(sharedState.targetBundle);
+      const wanted = shown && shown.bundle_id;
+      const primaryBundle = (bundles || []).find(function (bundle) {
+        return wanted && bundle.bundle_id === wanted;
+      }) || null;
+      tbody.innerHTML = "";
+      (defects || []).forEach(d => {
+        const inPrimary = primaryBundle && (primaryBundle.tasks || []).some(t => t.task_id === d.task_id);
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${d.task_id}</td>
+          <td><span class="tag ${sourceTagClass(d.source)}">${d.source}</span></td>
+          <td>KM ${d.chainage_km} ${d.track_line}</td>
+          <td>${d.description}</td>
+          <td><strong style="color:${d.priority_score >= 80 ? "#ef4444" : d.priority_score >= 60 ? "#f59e0b" : "#38bdf8"};">${d.priority_score}</strong></td>
+          <td><strong style="color:${Number(d.predicted_days_to_critical) <= 3 ? "#ef4444" : Number(d.predicted_days_to_critical) <= 10 ? "#f59e0b" : "#38bdf8"};">${Number.isFinite(Number(d.predicted_days_to_critical)) ? Number(d.predicted_days_to_critical).toFixed(1) : "—"}</strong></td>
+          <td>${d.required_duration_min} mins</td>
+          <td>${d.machine_id || "Manual Gang"}</td>
+          <td>${d.crew_headcount} Staff</td>
+          <td style="color:${inPrimary ? "#4ade80" : "#94a3b8"}; font-weight:bold;">${inPrimary ? "CLUSTERED" : "NEXT CYCLE"}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderChiefOptions(options) {
+      sharedState.candidateOptions = options || [];
+      const labels = [
+        { title: "Option 1: Night Corridor Block", color: "#38bdf8" },
+        { title: "Option 2: Asset-First Window", color: "#cbd5e1" },
+        { title: "Option 3: Mega Block", color: "#a855f7" }
+      ];
+      for (let i = 0; i < 3; i++) {
+        const card = document.getElementById("chiefCard" + (i + 1));
+        if (!card) continue;
+        const opt = options[i];
+        if (!opt || opt.start_time_str === "—") {
+          card.querySelector(".plan-header").innerHTML = `<span style="color:#94a3b8;">${labels[i].title}</span><span class="mono">NOT BOOKED</span>`;
+          card.children[1].textContent = opt
+            ? "[" + opt.profile + "] No safe window. The line was not taken."
+            : "Solver returned infeasible for this profile.";
+          card.children[2].textContent = "";
+          continue;
+        }
+        const score = opt.confidence_score || 80;
+        const delays = (opt.train_impacts || []).map(x => x.train_id + " " + x.delay_minutes + "m").join(" • ") || "0 Passenger Delay";
+        const proof = bundlingProof(opt.metrics);
+        const gainLabel = "Downtime " + Math.abs(proof.gain).toFixed(1) + "% less";
+        card.querySelector(".plan-header").innerHTML = `<span style="color:${labels[i].color};">${labels[i].title}</span><span class="mono" style="color:#4ade80;">${score}/100</span>`;
+        card.children[1].textContent = `[${opt.profile}] ${opt.start_time_str} – ${opt.end_time_str} (${opt.net_work_duration_min} mins)`;
+        card.children[2].textContent = "• " + delays + " • " + gainLabel;
+      }
+      if (options && options.length) controllerSelectOption(sharedState.selectedOption, true);
+    }
+
+    function getOptimizeQuery() {
+      const passW = document.getElementById("sliderPassWeight") ? document.getElementById("sliderPassWeight").value : 300;
+      const overdueW = document.getElementById("sliderOverdueWeight") ? document.getElementById("sliderOverdueWeight").value : 50;
+      const lineEl = document.getElementById("ctrlLineSelect");
+      const sectorEl = document.getElementById("ctrlSectionSelect");
+      const line = lineEl ? lineEl.value : "MID";
+      const sector = sectorEl ? sectorEl.value : "GHAT";
+      return `/api/optimize?pass_weight=${encodeURIComponent(passW)}&overdue_weight=${encodeURIComponent(overdueW)}&target_line=${encodeURIComponent(line)}&sector=${encodeURIComponent(sector)}`;
+    }
+
+    const MACHINE_WORDS = {
+      TIE_TAMPER: "Tamper",
+      BCM_MACHINE: "Ballast cleaner",
+      TOWER_WAGON: "Tower wagon"
+    };
+    const PROFILE_WORDS = {
+      PUNCTUALITY_FIRST: "Night",
+      ASSET_FIRST: "Asset",
+      MEGA_BLOCK: "Mega"
+    };
+
+    function freightForecastSpan() {
+      const range = sharedState.freightForecastRange;
+      if (!range) return null;
+      const nums = [range.optimistic, range.expected, range.pessimistic]
+        .map(function (value) { return Number(value); })
+        .filter(function (value) { return Number.isFinite(value); });
+      if (!nums.length) return null;
+      const low = Math.min.apply(null, nums);
+      const high = Math.max.apply(null, nums);
+      return low === high ? String(low) : (low + "\u2013" + high);
+    }
+
+    function freightImpactText() {
+      const span = freightForecastSpan();
+      if (span == null) return null;
+      return "Freight impact: " + span + " trains delayed (forecast range)";
+    }
+
+    function setKpi(id, text, color) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = text;
+      if (color) el.style.color = color;
+    }
+
+    function bundlingProof(metrics) {
+      const m = metrics || {};
+      const saved = m.bundling_saved_min != null ? Number(m.bundling_saved_min) : Number(m.track_time_saved_min || 0);
+      const gain = m.bundling_gain_pct != null ? Number(m.bundling_gain_pct) : Number(m.gain_pct || 0);
+      const alone = m.bundling_standalone_min != null ? Number(m.bundling_standalone_min) : Number(m.standalone_min || 0);
+      const together = m.bundling_bundled_min != null ? Number(m.bundling_bundled_min) : Number(m.bundled_min || 0);
+      return { saved: saved, gain: gain, alone: alone, together: together };
+    }
+
+    function lockedWindowPhrase() {
+      const possession = sharedState.possession;
+      if (possession && possession.start_hhmm && possession.end_hhmm) {
+        return possession.start_hhmm + "–" + possession.end_hhmm;
+      }
+      return "Order locked";
+    }
+
+    function planWords(status) {
+      const code = String(status || "").toUpperCase();
+      if (code === "OPTIMAL") return { text: "BEST PLAN", color: "#4ade80", sub: "best fit" };
+      if (code === "FEASIBLE") return { text: "WORKABLE", color: "#facc15", sub: "safe block" };
+      if (code === "INFEASIBLE") return { text: "NO WINDOW", color: "#f87171", sub: "no gap" };
+      if (code === "UNKNOWN" || code === "MODEL_INVALID") return { text: "UNSOLVED", color: "#facc15", sub: "not finished" };
+      return { text: "WAITING", color: "#94a3b8", sub: "not answered" };
+    }
+
+    function machineLine(hours) {
+      const names = Object.keys(hours || {});
+      if (!names.length) return "No machine out";
+      return names.map(function (name) {
+        const label = MACHINE_WORDS[name] || String(name).replace(/_/g, " ").toLowerCase();
+        return label + " " + Number(hours[name]).toFixed(1) + "h";
+      }).join(" · ");
+    }
+
+    function paintPlanMetrics(option) {
+      const row = document.getElementById("kpiRow");
+      const blanks = ["kpiChaos", "kpiSaved", "kpiGain", "kpiDefects", "kpiBlocks", "kpiShifted", "kpiCascade"];
+      if (!option || !option.metrics) {
+        setKpi("kpiPlan", "WAITING", "#94a3b8");
+        setKpi("kpiPlanSub", "Solver has not answered yet");
+        blanks.forEach(function (id) { setKpi(id, "—", "#94a3b8"); });
+        setKpi("kpiChaosSub", "Chaos score from the solver");
+        setKpi("kpiSavedSub", "Separate blocks versus one block");
+        setKpi("kpiGainSub", "Less time the track is blocked");
+        setKpi("kpiDefectsSub", "Faults covered by this plan");
+        setKpi("kpiBlocksSub", "Machines out on the block");
+        setKpi("kpiShiftedSub", "Passengers and goods");
+        setKpi("kpiCascadeSub", "Two following services");
+        const shiftedSub = document.getElementById("kpiShiftedSub");
+        if (shiftedSub) shiftedSub.style.whiteSpace = "";
+        if (row) row.title = "Waiting for the block solver";
+        paintEngineBoard(null);
+        return;
+      }
+
+      const metrics = option.metrics;
+      const words = planWords(option.solver_status || metrics.solver_status);
+      const profile = PROFILE_WORDS[option.profile] || "Block plan";
+      const booked = metrics.booked !== false;
+      if (booked && option.start_time_str && option.start_time_str !== "—") {
+        setKpi("kpiPlan", "BEST PLAN", "#4ade80");
+        setKpi("kpiPlanSub", profile + " · window booked");
+      } else {
+        setKpi("kpiPlan", words.text, words.color);
+        setKpi("kpiPlanSub", profile + " · " + words.sub);
+      }
+
+      if (metrics.chaos_score == null || !Number.isFinite(Number(metrics.chaos_score))) {
+        setKpi("kpiChaos", "N/A", "#94a3b8");
+        setKpi("kpiChaosSub", "Not scored");
+      } else {
+        const rounded = Math.round(Number(metrics.chaos_score));
+        setKpi("kpiChaos", rounded.toLocaleString("en-IN"), rounded === 0 ? "#4ade80" : "#facc15");
+        setKpi("kpiChaosSub", rounded === 0 ? "Timetable left alone" : "Lower is calmer");
+      }
+
+      const proof = bundlingProof(metrics);
+      setKpi("kpiSaved", Math.round(proof.saved) + " min", proof.saved > 0 ? "#38bdf8" : "#facc15");
+      setKpi("kpiSavedSub", proof.alone > 0 ? (Math.round(proof.alone) + " → " + Math.round(proof.together) + " min") : "No comparison");
+
+      setKpi(
+        "kpiGain",
+        Math.abs(proof.gain).toFixed(1) + "%",
+        proof.gain > 0 ? "#4ade80" : "#facc15"
+      );
+      setKpi("kpiGainSub", "Less time the track is blocked");
+
+      setKpi("kpiDefects", String(metrics.defects_cleared), "#f8fafc");
+      setKpi("kpiDefectsSub", booked ? "Covered by this plan" : "Not cleared yet");
+      setKpi("kpiBlocks", String(metrics.blocks_scheduled), "#38bdf8");
+      setKpi("kpiBlocksSub", booked ? machineLine(metrics.machines) : "Not placed yet");
+
+      const passN = Number(metrics.passenger_delayed || 0);
+      const goodsN = Number(metrics.freight_delayed || 0);
+      const shifted = passN + goodsN;
+      const freightLine = freightImpactText() || ("Freight impact: " + goodsN + " trains delayed (forecast range)");
+      setKpi("kpiShifted", shifted === 0 ? "None" : String(shifted), shifted === 0 ? "#4ade80" : "#facc15");
+      setKpi("kpiShiftedSub", "Pass " + passN + " · " + freightLine);
+      const shiftedSub = document.getElementById("kpiShiftedSub");
+      if (shiftedSub) {
+        shiftedSub.style.whiteSpace = "normal";
+        shiftedSub.title = freightLine;
+      }
+      const shiftedCell = document.getElementById("kpiShifted");
+      if (shiftedCell && shiftedCell.parentElement) shiftedCell.parentElement.title = freightLine;
+
+      const cascade = Number(metrics.cascade_impact || 0);
+      setKpi("kpiCascade", cascade.toFixed(1), cascade === 0 ? "#4ade80" : "#facc15");
+      setKpi("kpiCascadeSub", "Two following services");
+
+      if (row && metrics.report) {
+        row.title = Object.keys(metrics.report).map(function (key) {
+          return key + ": " + metrics.report[key];
+        }).join("\n");
+      }
+      paintEngineBoard(option);
+    }
+
+    function setText(id, text) {
+      const el = document.getElementById(id);
+      if (el) el.textContent = text;
+    }
+
+    function policyWeights() {
+      const passEl = document.getElementById("sliderPassWeight");
+      const postEl = document.getElementById("sliderOverdueWeight");
+      const pass = Number(passEl ? passEl.value : 300) || 300;
+      const post = Number(postEl ? postEl.value : 50) || 50;
+      return {
+        PUNCTUALITY_FIRST: { pass: pass, freight: 2, post: post },
+        ASSET_FIRST: { pass: Math.max(20, Math.floor(pass / 4)), freight: 2, post: post * 3 },
+        MEGA_BLOCK: { pass: Math.max(40, Math.floor(pass / 2)), freight: 1, post: post * 2 }
+      };
+    }
+
+    function paintPolicyTable(selectedProfile) {
+      const body = document.getElementById("aiPolicyBody");
+      if (!body) return;
+      const names = {
+        PUNCTUALITY_FIRST: "Punctuality first",
+        ASSET_FIRST: "Asset first",
+        MEGA_BLOCK: "Mega block"
+      };
+      const options = sharedState.candidateOptions || [];
+      body.replaceChildren();
+      if (!options.length) {
+        const row = document.createElement("tr");
+        const cell = document.createElement("td");
+        cell.colSpan = 6;
+        cell.style.color = "#94a3b8";
+        cell.textContent = "Waiting for the three solves.";
+        row.appendChild(cell);
+        body.appendChild(row);
+        return;
+      }
+      const weights = policyWeights();
+      options.forEach(function (opt) {
+        const metrics = opt.metrics || {};
+        const row = document.createElement("tr");
+        if (opt.profile === selectedProfile) row.className = "ai-on";
+        const weight = weights[opt.profile] || { pass: "—", freight: "—", post: "—" };
+        const chaos = metrics.chaos_score == null || !Number.isFinite(Number(metrics.chaos_score))
+          ? "—"
+          : Math.round(Number(metrics.chaos_score)).toLocaleString("en-IN");
+        const proof = bundlingProof(metrics);
+        const saved = metrics.bundling_saved_min != null || metrics.track_time_saved_min != null
+          ? (Math.round(proof.saved) + " min")
+          : "—";
+        const passMoved = Number(metrics.passenger_delayed || 0);
+        const freightSpan = freightForecastSpan();
+        const freightLine = freightImpactText();
+        const movedText = freightSpan != null
+          ? (passMoved + " pass · goods " + freightSpan)
+          : String(passMoved + Number(metrics.freight_delayed || 0));
+        const windowText = opt.start_time_str && opt.start_time_str !== "—"
+          ? opt.start_time_str + "–" + opt.end_time_str
+          : "No window";
+        [names[opt.profile] || opt.profile, weight.pass + " / " + weight.freight + " / " + weight.post, windowText, chaos, saved, movedText].forEach(function (value) {
+          const cell = document.createElement("td");
+          cell.textContent = value;
+          if (value === movedText && freightLine) cell.title = freightLine;
+          row.appendChild(cell);
+        });
+        body.appendChild(row);
+      });
+      const note = document.getElementById("aiPolicyNote");
+      const booked = options.filter(function (opt) { return opt.start_time_str && opt.start_time_str !== "—"; });
+      const sameClock = booked.length > 1 && booked.every(function (opt) {
+        return opt.start_time_str === booked[0].start_time_str && opt.end_time_str === booked[0].end_time_str;
+      });
+      if (note && sameClock) {
+        note.textContent = "All three policies book the same clock here, because the earliest gap already leaves the timetable alone. The weights still differ, and they split the window when the corridor is tighter. Pick a row on the Section Controller screen and this table marks the same plan.";
+      } else if (note) {
+        note.textContent = "Weights are passenger / freight / bring-forward. Pick a row on the Section Controller screen and this table marks the same plan.";
+      }
+    }
+
+    function paintEngineBoard(option) {
+      const bundle = sharedState.targetBundle;
+      const metrics = option && option.metrics ? option.metrics : null;
+      const booked = !!(metrics && metrics.booked !== false && option.start_time_str && option.start_time_str !== "—");
+
+      if (bundle && bundle.start_km != null) {
+        const id = bundle.bundle_id ? bundle.bundle_id + " · " : "";
+        setText("aiCluster", id + (bundle.track_line || "LINE") + " KM " + Number(bundle.start_km).toFixed(1) + "–" + Number(bundle.end_km).toFixed(1));
+        const alone = bundle.sequential_duration_sum;
+        const together = bundle.work_duration_min != null ? bundle.work_duration_min : bundle.required_duration_min;
+        if (alone != null && together != null) {
+          const handed = Number(alone) - Number(together);
+          setText("aiBundleMath", alone + " min if separate, " + together + " min in one block" + (handed > 0 ? " · " + handed + " min back" : ""));
+        } else {
+          setText("aiBundleMath", "—");
+        }
+      } else {
+        setText("aiCluster", "Waiting for the solver");
+        setText("aiBundleMath", "—");
+      }
+
+      paintPolicyTable(option && option.profile);
+
+      if (!metrics) {
+        setText("aiChipSaved", "—");
+        setText("aiChipPass", "—");
+        setText("aiChipChaos", "—");
+        setText("aiChipStatus", "WAITING");
+        const status = document.getElementById("aiChipStatus");
+        if (status) status.style.color = "#facc15";
+        setText("aiVerdict", "Waiting for CP-SAT. The four numbers above fill from the selected plan.");
+        setText("aiWindow", "—");
+        setText("aiGain", "—");
+        setText("aiDelays", "—");
+        setText("aiMachines", "—");
+        setText("aiRunBadge", "AWAITING SOLVER");
+        setText("aiRunNote", "These figures are the selected CP-SAT plan, the same one on the ribbon.");
+        return;
+      }
+
+      const proof = bundlingProof(metrics);
+      const saved = proof.saved;
+      const gain = proof.gain;
+      const passN = Number(metrics.passenger_delayed || 0);
+      const goodsN = Number(metrics.freight_delayed || 0);
+      const freightLine = freightImpactText() || ("Freight impact: " + goodsN + " trains delayed (forecast range)");
+      const words = planWords(option.solver_status || metrics.solver_status);
+      const profile = PROFILE_WORDS[option.profile] || "Plan";
+
+      setText("aiChipSaved", Math.round(saved) + " min");
+      const savedEl = document.getElementById("aiChipSaved");
+      if (savedEl) savedEl.style.color = booked && saved > 0 ? "#4ade80" : "#facc15";
+      setText("aiChipPass", String(passN));
+      const passEl = document.getElementById("aiChipPass");
+      if (passEl) passEl.style.color = passN === 0 ? "#4ade80" : "#facc15";
+
+      if (metrics.chaos_score == null || !Number.isFinite(Number(metrics.chaos_score))) {
+        setText("aiChipChaos", "—");
+      } else {
+        setText("aiChipChaos", Math.round(Number(metrics.chaos_score)).toLocaleString("en-IN"));
+      }
+      const chaosEl = document.getElementById("aiChipChaos");
+      if (chaosEl) chaosEl.style.color = Number(metrics.chaos_score) === 0 ? "#4ade80" : "#f8fafc";
+
+      setText("aiChipStatus", words.text);
+      const statusEl = document.getElementById("aiChipStatus");
+      if (statusEl) statusEl.style.color = words.color;
+      setText("aiRunBadge", profile.toUpperCase() + " · " + words.text);
+
+      if (!booked) {
+        setText("aiVerdict", "No safe window on this policy. The line stays with traffic, and the five rules are still in force.");
+        setText("aiWindow", "No window booked");
+      } else if (passN === 0 && saved > 0) {
+        setText("aiVerdict", "Objective met on this plan. " + saved + " minutes of track are back with operations, and passenger trains stay on the working timetable.");
+        setText("aiWindow", option.start_time_str + " – " + option.end_time_str + " · " + option.net_work_duration_min + " min clear, machines out and back");
+      } else if (saved > 0) {
+        setText("aiVerdict", "Objective met on this plan. " + saved + " minutes of track are back with operations. Moved trains stay inside their patience limit.");
+        setText("aiWindow", option.start_time_str + " – " + option.end_time_str + " · " + option.net_work_duration_min + " min clear, machines out and back");
+      } else if (passN === 0) {
+        setText("aiVerdict", "Objective met on safety. Passenger trains stay on the working timetable. Spatial bundling hands " + Math.round(Math.max(0, saved)) + " min of track back to operations.");
+        setText("aiWindow", option.start_time_str + " – " + option.end_time_str + " · " + option.net_work_duration_min + " min clear, machines out and back");
+      } else {
+        setText("aiVerdict", "A safe possession is booked. Moved trains stay inside their patience limit. Spatial bundling hands " + Math.round(Math.max(0, saved)) + " min of track back to operations.");
+        setText("aiWindow", option.start_time_str + " – " + option.end_time_str + " · " + option.net_work_duration_min + " min clear, machines out and back");
+      }
+
+      setText("aiGain", Math.abs(gain).toFixed(1) + "% less · " + Math.round(proof.alone) + " min apart, " + Math.round(proof.together) + " min bundled");
+      setText("aiDelays", "Passengers " + passN + " · " + freightLine + " · " + Number(metrics.total_delay_min || 0) + " min total");
+      setText("aiMachines", machineLine(metrics.machines));
+      setText("aiRunNote", "Time saved is Formula 2 on the clustered jobs: nearby defects packed into one possession. The cluster line above is the window the controller is looking at.");
+    }
+
+    function paintOnLine(count, detail) {
+      setKpi("kpiOnLine", String(count), "#4ade80");
+      setKpi("kpiOnLineSub", detail);
+    }
+
+    function bundleLabel(bundle) {
+      if (!bundle || bundle.start_km == null) return "Waiting for the solver";
+      const mins = bundle.work_duration_min != null ? bundle.work_duration_min : bundle.required_duration_min;
+      const duration = mins != null ? " · " + mins + " min work" : "";
+      return (bundle.track_line || "LINE") + " KM " + Number(bundle.start_km).toFixed(1) + "–" + Number(bundle.end_km).toFixed(1) + duration;
+    }
+
+    function paintBundleFacts(bundle) {
+      const text = bundleLabel(bundle);
+      const cluster = document.getElementById("officerClusterLine");
+      const request = document.getElementById("chiefRequestLine");
+      const target = document.getElementById("docketTarget");
+      if (cluster) cluster.innerHTML = "&bull; <strong>Spatial Cluster:</strong> " + text;
+      if (request) request.innerHTML = "&bull; <strong>Requested line:</strong> " + text;
+      if (target && sharedState.sanctionStatus !== "SANCTIONED") target.textContent = text;
+    }
+
+    function machineLabel(name) {
+      if (!name || name === "NONE") return "Manual gang";
+      return MACHINE_WORDS[name] || String(name).replace(/_/g, " ").toLowerCase();
+    }
+
+    function stationAtKm(km) {
+      const chainage = Number(km);
+      if (!stations.length || !Number.isFinite(chainage)) return "";
+      let best = stations[0];
+      let bestDist = Math.abs(best.km - chainage);
+      stations.forEach(function (station) {
+        const dist = Math.abs(station.km - chainage);
+        if (dist < bestDist) {
+          best = station;
+          bestDist = dist;
+        }
+      });
+      return bestDist <= 0.6 ? best.name : "";
+    }
+
+    function dossierRefText(bundle) {
+      if (sharedState.sanctionMemo) return sharedState.sanctionMemo;
+      const possession = sharedState.possession;
+      if (possession && possession.bundle_id && sharedState.sanctionStatus === "SANCTIONED") return possession.bundle_id;
+      if (bundle && bundle.bundle_id) return bundle.bundle_id;
+      return "Not issued";
+    }
+
+    function controlsMatchPossession() {
+      const possession = sharedState.possession;
+      if (sharedState.sanctionStatus !== "SANCTIONED" || !possession) return false;
+      const lineEl = document.getElementById("ctrlLineSelect");
+      const sectorEl = document.getElementById("ctrlSectionSelect");
+      const line = String(possession.track_line || "");
+      let expectedLine = line;
+      if (line.indexOf("UP") === 0 && line !== "UP") expectedLine = "UP";
+      if (line.indexOf("DN") === 0 && line !== "DN") expectedLine = "DN";
+      const section = String(possession.section_id || "");
+      let expectedSector = "";
+      if (section === "SECTION_3") expectedSector = "GHAT";
+      else if (section === "SECTION_4") expectedSector = "PUNE";
+      else if (section === "SECTION_1" || section === "SECTION_2") expectedSector = "SUBURBAN";
+      const lineOk = !lineEl || lineEl.value === expectedLine;
+      const sectorOk = !sectorEl || !expectedSector || sectorEl.value === expectedSector;
+      return lineOk && sectorOk;
+    }
+
+    function consoleBundle(fallback) {
+      const possession = sharedState.possession;
+      if (controlsMatchPossession() && possession && possession.bundle_id) {
+        const match = (sharedState.catalogBundles || []).find(function (item) {
+          return item.bundle_id === possession.bundle_id;
+        });
+        if (match) return match;
+      }
+      return fallback;
+    }
+
+    function windowPhrase(bundle) {
+      if (!bundle) return "Waiting for the solver";
+      const together = bundle.work_duration_min != null ? bundle.work_duration_min : bundle.required_duration_min;
+      if (together == null) return "Waiting for the solver";
+      const clearance = Number(bundle.clearance_min);
+      let text = together + " min work";
+      if (Number.isFinite(clearance) && clearance > 0) {
+        const protection = bundle.block_type === "POWER_AND_TRAFFIC" ? "isolation and earthing" : "protection";
+        text += " + " + clearance + " min " + protection;
+      }
+      return text;
+    }
+
+    function paintAuditList(elementId, rows, lineFor) {
+      const host = document.getElementById(elementId);
+      if (!host) return;
+      host.replaceChildren();
+      if (!rows || !rows.length) {
+        host.textContent = "No rows in the audit log yet.";
+        return;
+      }
+      rows.forEach(function (row) {
+        const line = document.createElement("div");
+        line.textContent = lineFor(row);
+        host.appendChild(line);
+      });
+    }
+
+    function auditStamp(iso) {
+      if (!iso) return "—";
+      return String(iso).replace("T", " ").slice(0, 16);
+    }
+
+    async function loadAudit() {
+      try {
+        const dossiers = await apiGet("/api/history/dossiers?limit=6");
+        const possessions = await apiGet("/api/history/possessions?limit=6");
+        paintAuditList("officerAuditBody", dossiers.rows || [], function (row) {
+          const reason = row.reject_reason ? " · " + row.reject_reason : "";
+          return auditStamp(row.submitted_at) + " · " + row.status + " · " + row.plan_type + " · " + (row.submitted_by || "—") + reason;
+        });
+        paintAuditList("chiefAuditBody", possessions.rows || [], function (row) {
+          return auditStamp(row.sanctioned_at) + " · " + row.outcome + " · " + row.track_line + " · " + row.bundle_id + " · " + (row.sanctioned_by || "—");
+        });
+      } catch (e) {
+        const officer = document.getElementById("officerAuditBody");
+        const chief = document.getElementById("chiefAuditBody");
+        if (officer) officer.textContent = "Audit log unavailable.";
+        if (chief) chief.textContent = "Audit log unavailable.";
+      }
+    }
+
+    function paintConsoleFacts(bundle, option) {
+      const shown = consoleBundle(bundle);
+      paintBundleFacts(shown);
+      const departments = document.getElementById("officerDepartments");
+      const sequential = document.getElementById("officerSequential");
+      const windowEl = document.getElementById("officerWindow");
+      const powerEl = document.getElementById("officerPower");
+      const savedEl = document.getElementById("officerSaved");
+      const machineBody = document.getElementById("officerMachineBody");
+      const crewEl = document.getElementById("officerCrewLine");
+      const duration = document.getElementById("chiefDuration");
+      const resources = document.getElementById("chiefResources");
+      const ref = document.getElementById("chiefDossierRef");
+      const filed = document.getElementById("chiefFiledBy");
+      const waiting = !shown || shown.start_km == null;
+      let phrase = waiting ? "Waiting for the solver" : windowPhrase(shown);
+      const possession = sharedState.possession;
+      if (!waiting && controlsMatchPossession() && possession && possession.start_hhmm) {
+        phrase = possession.start_hhmm + "–" + possession.end_hhmm + " · " + phrase;
+      }
+      if (windowEl) windowEl.textContent = phrase;
+      if (duration) duration.textContent = phrase;
+      if (ref) ref.textContent = dossierRefText(shown);
+
+      const state = sharedState.lastSystemState || {};
+      if (filed) {
+        if (state.submitted_by && state.sanctioned_by) filed.textContent = state.submitted_by + " · sanctioned by " + state.sanctioned_by;
+        else if (state.sanctioned_by) filed.textContent = "Sanctioned by " + state.sanctioned_by;
+        else filed.textContent = state.submitted_by || "—";
+      }
+
+      if (waiting) {
+        if (departments) departments.textContent = "Waiting for the solver";
+        if (sequential) sequential.textContent = "Waiting for the solver";
+        if (powerEl) powerEl.textContent = "Waiting for the solver";
+        if (savedEl) {
+          savedEl.textContent = "Waiting for the solver";
+          savedEl.style.color = "#94a3b8";
+        }
+        if (machineBody) machineBody.textContent = "Waiting for the solver.";
+        if (crewEl) crewEl.textContent = "";
+        if (resources) resources.textContent = "Waiting for the solver";
+        return;
+      }
+
+      const sources = (shown.sources || []).filter(Boolean);
+      if (departments) departments.textContent = sources.length ? sources.join(" + ") : "—";
+      const alone = shown.sequential_duration_sum;
+      if (sequential) {
+        sequential.textContent = alone != null ? (alone + " min if each job takes the line alone") : "—";
+      }
+      if (powerEl) {
+        const sector = shown.power_sector_id || "—";
+        const kind = shown.block_type === "POWER_AND_TRAFFIC" ? "power and traffic" : "traffic only";
+        powerEl.textContent = sector + " · " + kind;
+      }
+
+      const sameCluster = !possession || !possession.bundle_id || !sharedState.targetBundle || sharedState.targetBundle.bundle_id === possession.bundle_id;
+      const metrics = sameCluster && option && option.metrics;
+      const booked = !!(metrics && metrics.booked !== false && option.start_time_str && option.start_time_str !== "—");
+      if (savedEl) {
+        if (booked) {
+          const proof = bundlingProof(metrics);
+          savedEl.textContent = "Corridor track time saved: " + Math.round(proof.saved) + " min (" + Math.abs(proof.gain).toFixed(1) + "% less).";
+          savedEl.style.color = proof.saved > 0 ? "#4ade80" : "#facc15";
+        } else if (alone != null && shown.work_duration_min != null) {
+          const handed = Number(alone) - Number(shown.work_duration_min);
+          if (handed > 0) savedEl.textContent = "This cluster is " + handed + " min shorter as one possession.";
+          else if (handed < 0) savedEl.textContent = "Mobilisation makes this possession " + Math.abs(handed) + " min longer than the separate jobs.";
+          else savedEl.textContent = "This cluster takes the same time as doing the jobs separately.";
+          savedEl.style.color = "#facc15";
+        } else {
+          savedEl.textContent = "Corridor gain appears when a window is booked.";
+          savedEl.style.color = "#94a3b8";
+        }
+      }
+
+      const machines = shown.machines || [];
+      if (machineBody) {
+        machineBody.replaceChildren();
+        if (!machines.length) {
+          machineBody.textContent = "No track machine. A manual gang holds this possession.";
+        } else {
+          machines.forEach(function (machine) {
+            const row = document.createElement("div");
+            const depotName = stationAtKm(machine.depot_km);
+            const depot = depotName
+              ? (depotName + " KM " + Number(machine.depot_km).toFixed(1))
+              : ("KM " + Number(machine.depot_km).toFixed(1));
+            row.textContent = "• " + machineLabel(machine.machine_type) + " from " + depot
+              + " · " + Number(machine.transit_min).toFixed(0) + " min run to site";
+            machineBody.appendChild(row);
+          });
+        }
+      }
+      if (sharedState.catalogDefects) {
+        renderDefectTable(sharedState.catalogDefects, sharedState.catalogBundles);
+      }
+      const crewCount = shown.crew_headcount;
+      if (crewEl) {
+        crewEl.textContent = crewCount != null ? ("Headcount on this cluster: " + crewCount + " staff") : "";
+      }
+      if (resources) {
+        const names = machines.length
+          ? machines.map(function (machine) { return machineLabel(machine.machine_type); }).join(", ")
+          : "Manual gang";
+        resources.textContent = crewCount != null ? (names + " · " + crewCount + " staff") : names;
+      }
+    }
+
+    function applyOptimizeResult(opt) {
+      if (!opt) return;
+      sharedState.targetBundle = opt.target_bundle || sharedState.targetBundle;
+      sharedState.freightForecastRange = opt.freight_forecast_range || null;
+      paintBundleFacts(sharedState.targetBundle);
+      renderChiefOptions(opt.candidate_options || []);
+      const selected = (opt.candidate_options || [])[sharedState.selectedOption - 1];
+      paintPlanMetrics(selected);
+      paintConsoleFacts(sharedState.targetBundle, selected);
+      updateBlockGeoCircle();
+    }
+
+    function alignControlsToPossession() {
+      const possession = sharedState.possession;
+      if (sharedState.sanctionStatus !== "SANCTIONED" || !possession) return;
+      const lineEl = document.getElementById("ctrlLineSelect");
+      const sectorEl = document.getElementById("ctrlSectionSelect");
+      const line = String(possession.track_line || "");
+      if (lineEl) {
+        if (line === "MID") lineEl.value = "MID";
+        else if (line.indexOf("UP") === 0) lineEl.value = "UP";
+        else if (line.indexOf("DN") === 0) lineEl.value = "DN";
+      }
+      const section = String(possession.section_id || "");
+      if (sectorEl) {
+        if (section === "SECTION_3") sectorEl.value = "GHAT";
+        else if (section === "SECTION_4") sectorEl.value = "PUNE";
+        else if (section === "SECTION_1" || section === "SECTION_2") sectorEl.value = "SUBURBAN";
+      }
+    }
+
+    let optimizeTicket = 0;
+
+    async function runOptimizeFromControls() {
+      const ticket = ++optimizeTicket;
+      const opt = await apiGet(getOptimizeQuery());
+      if (ticket !== optimizeTicket) return null;
+      applyOptimizeResult(opt);
+      return opt;
+    }
+
+    function svgNode(name, attrs) {
+      const node = document.createElementNS("http://www.w3.org/2000/svg", name);
+      Object.keys(attrs).forEach(key => node.setAttribute(key, attrs[key]));
+      return node;
+    }
+
+    function clearGroup(id) {
+      const group = document.getElementById(id);
+      if (!group) return null;
+      while (group.firstChild) group.removeChild(group.firstChild);
+      return group;
+    }
+
+    function linesAtKm(km) {
+      if (km < 54) return ["UP_FAST", "UP_SLOW", "DN_SLOW", "DN_FAST"];
+      if (km <= 54) return ["UP_FAST", "UP_SLOW", "UP", "DN_SLOW", "DN_FAST", "DN"];
+      if (km < 100) return ["UP", "DN"];
+      if (km <= 128) return ["UP", "MID", "DN"];
+      return ["UP", "DN"];
+    }
+
+    function uniqueRailYs(km) {
+      const ys = [];
+      linesAtKm(km).forEach(line => {
+        const y = railCenterY(line);
+        if (ys.indexOf(y) === -1) ys.push(y);
+      });
+      ys.sort((a, b) => a - b);
+      return ys;
+    }
+
+    function drawTrack(parent, x1, x2, y, color, dashed) {
+      parent.appendChild(svgNode("line", {
+        x1: x1, y1: y, x2: x2, y2: y,
+        stroke: "#1e293b", "stroke-width": "11", "stroke-dasharray": "4 6"
+      }));
+      const rail = { stroke: color, "stroke-width": "2.4", "stroke-linecap": "round" };
+      if (dashed) rail["stroke-dasharray"] = "10 6";
+      parent.appendChild(svgNode("line", Object.assign({ x1: x1, y1: y - 3.2, x2: x2, y2: y - 3.2 }, rail)));
+      parent.appendChild(svgNode("line", Object.assign({ x1: x1, y1: y + 3.2, x2: x2, y2: y + 3.2 }, rail)));
+    }
+
+    function drawDiagonal(parent, x1, y1, x2, y2) {
+      parent.appendChild(svgNode("line", {
+        x1: x1, y1: y1, x2: x2, y2: y2,
+        stroke: "#cbd5e1", "stroke-width": "2.4", "stroke-linecap": "butt"
+      }));
+      const xLo = Math.min(x1, x2);
+      const xHi = Math.max(x1, x2);
+      switchSegments.push({
+        x1: xLo,
+        x2: xHi,
+        yAtMin: x1 <= x2 ? y1 : y2,
+        yAtMax: x1 <= x2 ? y2 : y1
+      });
+    }
+
+    function drawXOnRails(parent, xCenter, yA, yB, xLo, xHi) {
+      const rise = Math.abs(yB - yA);
+      if (rise < 1) return;
+      let left = xCenter - rise / 2;
+      let right = xCenter + rise / 2;
+      if (right > xHi) {
+        left -= right - xHi;
+        right = xHi;
+      }
+      if (left < xLo) {
+        right += xLo - left;
+        left = xLo;
+      }
+      if (left < xLo - 0.1 || right > xHi + 0.1 || Math.abs((right - left) - rise) > 1) return;
+      drawDiagonal(parent, left, yA, right, yB);
+      drawDiagonal(parent, left, yB, right, yA);
+    }
+
+    function railSpan(line) {
+      const x0 = getSvgXAtKm(0);
+      const x54 = getSvgXAtKm(54);
+      const x100 = getSvgXAtKm(100);
+      const x128 = getSvgXAtKm(128);
+      const x192 = getSvgXAtKm(192);
+      if (line === "UP_SLOW" || line === "DN_SLOW") return [x0, x54];
+      if (line === "MID") return [x100, x128];
+      return [x0, x192];
+    }
+
+    function crossoverPairs(km) {
+      if (km <= 54) return [["UP_FAST", "UP_SLOW"], ["UP_SLOW", "DN_SLOW"], ["DN_SLOW", "DN_FAST"]];
+      if (km < 100 || km > 128) return [["UP", "DN"]];
+      return [["UP", "MID"], ["MID", "DN"]];
+    }
+
+    function renderSchematicStations() {
+      const bands = clearGroup("schematicSections");
+      const rails = clearGroup("schematicRails");
+      const crosses = clearGroup("schematicCrossovers");
+      const labels = clearGroup("schematicStationLabels");
+      if (!bands || !rails || !crosses || !labels) return;
+      switchSegments = [];
+
+      const sections = corridorSections.length ? corridorSections : DEFAULT_SECTIONS;
+      const tint = {
+        SECTION_1: "rgba(250,204,21,0.07)",
+        SECTION_2: "rgba(251,146,60,0.07)",
+        SECTION_3: "rgba(226,232,240,0.07)",
+        SECTION_4: "rgba(74,222,128,0.07)"
+      };
+      sections.forEach(section => {
+        const x1 = getSvgXAtKm(section.start_km);
+        const x2 = getSvgXAtKm(section.end_km);
+        bands.appendChild(svgNode("rect", {
+          x: x1, y: 16, width: Math.max(2, x2 - x1), height: 136,
+          fill: tint[section.id] || "rgba(56,189,248,0.05)"
+        }));
+        const title = svgNode("text", {
+          x: x1 + 10, y: 16, fill: "#94a3b8",
+          "font-size": "11", "font-weight": "bold", "font-family": "monospace"
+        });
+        const shortName = {
+          SECTION_1: "SECTION 1  ·  SUBURBAN QUADRUPLE",
+          SECTION_2: "SECTION 2  ·  KALYAN–KARJAT DOUBLE",
+          SECTION_3: "SECTION 3  ·  BHOR GHAT 3-TRACK",
+          SECTION_4: "SECTION 4  ·  PUNE PLATEAU DOUBLE"
+        };
+        title.textContent = shortName[section.id] || section.name;
+        bands.appendChild(title);
+      });
+
+      const x0 = getSvgXAtKm(0);
+      const x54 = getSvgXAtKm(54);
+      const x100 = getSvgXAtKm(100);
+      const x128 = getSvgXAtKm(128);
+      const x192 = getSvgXAtKm(192);
+      drawTrack(rails, x0, x192, RAIL_Y.UP, "#facc15", false);
+      drawTrack(rails, x0, x54, RAIL_Y.UP_SLOW, "#fb923c", false);
+      drawTrack(rails, x100, x128, RAIL_Y.MID, "#e2e8f0", true);
+      drawTrack(rails, x0, x54, RAIL_Y.DN_SLOW, "#38bdf8", false);
+      drawTrack(rails, x0, x192, RAIL_Y.DN, "#4ade80", false);
+      drawDiagonal(crosses, x54 - (RAIL_Y.UP_SLOW - RAIL_Y.UP), RAIL_Y.UP_SLOW, x54, RAIL_Y.UP);
+      drawDiagonal(crosses, x54 - (RAIL_Y.DN - RAIL_Y.DN_SLOW), RAIL_Y.DN_SLOW, x54, RAIL_Y.DN);
+      const midRise = RAIL_Y.MID - RAIL_Y.UP;
+      drawDiagonal(crosses, x100, RAIL_Y.UP, x100 + midRise, RAIL_Y.MID);
+      drawDiagonal(crosses, x100, RAIL_Y.DN, x100 + midRise, RAIL_Y.MID);
+      drawDiagonal(crosses, x128 - midRise, RAIL_Y.MID, x128, RAIL_Y.UP);
+      drawDiagonal(crosses, x128 - midRise, RAIL_Y.MID, x128, RAIL_Y.DN);
+
+      let lastLabelX = -999;
+      stations.forEach(station => {
+        const x = getSvgXAtKm(station.km);
+        const ys = uniqueRailYs(station.km);
+        ys.forEach(y => {
+          labels.appendChild(svgNode("circle", {
+            cx: x, cy: y, r: "3.6", fill: "#ef4444", stroke: "#fff", "stroke-width": "0.8"
+          }));
+        });
+        if (station.crossover) {
+          crossoverPairs(station.km).forEach(pair => {
+            const spanA = railSpan(pair[0]);
+            const spanB = railSpan(pair[1]);
+            drawXOnRails(
+              crosses,
+              x,
+              railCenterY(pair[0]),
+              railCenterY(pair[1]),
+              Math.max(spanA[0], spanB[0]),
+              Math.min(spanA[1], spanB[1])
+            );
+          });
+        }
+        const stacked = x - lastLabelX < 48;
+        if (!stacked) lastLabelX = x;
+        const key = station.km === 0 || station.km === 54 || station.km === 100 || station.km === 128 || station.km === 192;
+        const text = svgNode("text", {
+          x: x, y: stacked ? 14 : 12,
+          fill: key ? "#f8fafc" : "#cbd5e1",
+          "font-weight": key ? "bold" : "normal",
+          "font-size": "12", "text-anchor": "middle", "font-family": "monospace"
+        });
+        text.textContent = station.code;
+        labels.appendChild(text);
+      });
+    }
+
+    function goingUp(train) {
+      const line = String(train.line || "");
+      if (line.startsWith("UP")) return true;
+      if (line.startsWith("DN")) return false;
+      return train.dir < 0;
+    }
+
+    function legalLine(train, km) {
+      const chain = Math.max(0, Math.min(192, km));
+      if ((train.line === "MID" || train.type === "BANKER") && chain >= 100 && chain <= 128) return "MID";
+      const up = goingUp(train);
+      if (chain <= 54) {
+        if (train.type === "LOCAL") return up ? "UP_SLOW" : "DN_SLOW";
+        return up ? "UP_FAST" : "DN_FAST";
+      }
+      return up ? "UP" : "DN";
+    }
+
+    function schematicPoint(train) {
+      const x = getSvgXAtKm(train.km);
+      const here = legalLine(train, train.km);
+      let y = railCenterY(here);
+      for (let i = 0; i < switchSegments.length; i++) {
+        const seg = switchSegments[i];
+        if (x < seg.x1 || x > seg.x2) continue;
+        const yWest = railCenterY(legalLine(train, svgXToKm(seg.x1) - 0.05));
+        const yEast = railCenterY(legalLine(train, svgXToKm(seg.x2) + 0.05));
+        if (Math.abs(seg.yAtMin - yWest) > 1.5 || Math.abs(seg.yAtMax - yEast) > 1.5) continue;
+        const span = seg.x2 - seg.x1;
+        const t = span <= 0.01 ? 1 : (x - seg.x1) / span;
+        y = seg.yAtMin + (seg.yAtMax - seg.yAtMin) * t;
+        break;
+      }
+      return { x: x, y: y };
+    }
+
+    const TRAIN_MARK_NAMES = {
+      LOCAL: "Local",
+      PREMIUM: "Vande Bharat",
+      SUPERFAST: "Superfast",
+      EXPRESS: "Express",
+      BANKER: "Ghat banker",
+      TANKER: "Tank wagon",
+      CONTAINER: "Container",
+      BOX: "Open wagon"
+    };
+    const TRAIN_MARK_EDGE = {
+      LOCAL: "#f5c518",
+      PREMIUM: "#1d4ed8",
+      SUPERFAST: "#1e3a8a",
+      EXPRESS: "#dc2626",
+      BANKER: "#22c55e",
+      TANKER: "#e5e7eb",
+      CONTAINER: "#f97316",
+      BOX: "#d97706"
+    };
+
+    function glyphKind(train) {
+      if (!train || train.type !== "FREIGHT") return (train && train.type) || "EXPRESS";
+      const blob = (String(train.name || "") + " " + String(train.id || "")).toUpperCase();
+      if (blob.includes("PETROL") || blob.includes("PET")) return "TANKER";
+      if (blob.includes("CONTAINER") || blob.includes("CNT")) return "CONTAINER";
+      return "BOX";
+    }
+
+    function headboard(train) {
+      return String(train.label || train.id || "").split("_")[0];
+    }
+
+    function markWheel(parent, cx) {
+      parent.appendChild(svgNode("circle", {
+        cx: cx, cy: "5.1", r: "1.45",
+        fill: "#0f172a", stroke: "#cbd5e1", "stroke-width": "0.35"
+      }));
+    }
+
+    function markPantograph(parent, x) {
+      parent.appendChild(svgNode("path", {
+        d: "M" + (x - 2.1) + ",-6.1 L" + x + ",-8.4 L" + (x + 2.1) + ",-6.1",
+        fill: "none", stroke: "#e2e8f0", "stroke-width": "0.7", "stroke-linejoin": "round"
+      }));
+      parent.appendChild(svgNode("line", {
+        x1: x - 2.6, y1: "-8.4", x2: x + 2.6, y2: "-8.4",
+        stroke: "#f8fafc", "stroke-width": "0.85", "stroke-linecap": "round"
+      }));
+    }
+
+    function markGoodsLoco(parent) {
+      parent.appendChild(svgNode("rect", { x: "7.5", y: "-5.7", width: "10.2", height: "9.4", rx: "0.45", fill: "#1e293b" }));
+      parent.appendChild(svgNode("rect", { x: "16.4", y: "-5.7", width: "3.5", height: "9.4", fill: "#facc15" }));
+      parent.appendChild(svgNode("rect", { x: "9.4", y: "-3.7", width: "3.3", height: "2.1", rx: "0.2", fill: "#bfdbfe" }));
+      parent.appendChild(svgNode("circle", { cx: "18.2", cy: "-1.6", r: "0.55", fill: "#fff" }));
+      markPantograph(parent, 12);
+      markWheel(parent, 10.6);
+      markWheel(parent, 16.2);
+    }
+
+    function drawLocal(parent) {
+      [[-22, 11.2], [-10.2, 11.2], [1.6, 11]].forEach(function (coach) {
+        const x = coach[0];
+        const w = coach[1];
+        parent.appendChild(svgNode("rect", { x: x, y: "-5.5", width: w, height: "9.2", rx: "0.5", fill: "#6d2148" }));
+        parent.appendChild(svgNode("rect", { x: x + 0.9, y: "-3.7", width: w - 3.4, height: "2.5", fill: "#e0f2fe" }));
+        parent.appendChild(svgNode("rect", { x: x + w - 2.6, y: "-4.6", width: "1.35", height: "7.2", fill: "#3f1028" }));
+      });
+      parent.appendChild(svgNode("rect", { x: "12.8", y: "-5.5", width: "6.4", height: "9.2", rx: "0.7", fill: "#f5c518" }));
+      parent.appendChild(svgNode("rect", { x: "16.2", y: "-3.3", width: "1.8", height: "2.3", rx: "0.2", fill: "#0f172a" }));
+      parent.appendChild(svgNode("circle", { cx: "17.6", cy: "1.3", r: "0.55", fill: "#fff" }));
+      parent.appendChild(svgNode("rect", { x: "-22", y: "3.5", width: "41.2", height: "1.05", fill: "#1c0a14" }));
+      markPantograph(parent, -4);
+      [-18, -13, -7, -2, 4, 9, 15.5].forEach(function (x) { markWheel(parent, x); });
+    }
+
+    function drawPremium(parent) {
+      parent.appendChild(svgNode("path", {
+        d: "M-21,-5.3 H7.5 C12,-5.3 16,-3.6 21.2,0 C16,3.6 12,5.3 7.5,5.3 H-21 Z",
+        fill: "#f8fafc"
+      }));
+      parent.appendChild(svgNode("path", {
+        d: "M6.2,-4.4 C11,-4.4 15,-2.8 20.2,0 C15,2.8 11,4.4 6.2,4.4 Z",
+        fill: "#1d4ed8"
+      }));
+      parent.appendChild(svgNode("rect", { x: "-21", y: "2.15", width: "27.5", height: "1.55", fill: "#f97316" }));
+      parent.appendChild(svgNode("rect", { x: "-18.2", y: "-3.5", width: "20.5", height: "2.35", rx: "0.3", fill: "#0f172a" }));
+      [-14.5, -10.2, -5.9, -1.6].forEach(function (x) {
+        parent.appendChild(svgNode("line", {
+          x1: x, y1: "-3.5", x2: x, y2: "-1.15",
+          stroke: "#93c5fd", "stroke-width": "0.45"
+        }));
+      });
+      parent.appendChild(svgNode("path", { d: "M13.2,-2.1 L17.6,0 L13.2,1.7 Z", fill: "#dbeafe" }));
+      markPantograph(parent, -8);
+      [-16, -8, 1.5, 12].forEach(function (x) { markWheel(parent, x); });
+    }
+
+    function drawSuperfast(parent) {
+      [[-22, 12.4], [-9, 12.4]].forEach(function (coach) {
+        const x = coach[0];
+        const w = coach[1];
+        parent.appendChild(svgNode("rect", { x: x, y: "-5.2", width: w, height: "8.8", rx: "0.35", fill: "#1e3a8a" }));
+        parent.appendChild(svgNode("rect", { x: x + 0.7, y: "-3.6", width: w - 1.5, height: "2.15", fill: "#dbeafe" }));
+        parent.appendChild(svgNode("rect", { x: x + 0.7, y: "-0.55", width: w - 1.5, height: "1.55", fill: "#fef3c7" }));
+      });
+      parent.appendChild(svgNode("rect", { x: "4.2", y: "-6", width: "12.2", height: "10", rx: "0.4", fill: "#1d4ed8" }));
+      parent.appendChild(svgNode("rect", { x: "15.2", y: "-6", width: "4", height: "10", fill: "#facc15" }));
+      parent.appendChild(svgNode("rect", { x: "6.6", y: "-4.1", width: "4.2", height: "2.3", fill: "#dbeafe" }));
+      parent.appendChild(svgNode("rect", { x: "16.2", y: "-3.3", width: "1.8", height: "2.2", fill: "#0f172a" }));
+      markPantograph(parent, 9);
+      [-18, -12, -5, 1, 8.5, 16].forEach(function (x) { markWheel(parent, x); });
+    }
+
+    function drawExpress(parent) {
+      [[-22, 12.2], [-9.2, 12.2]].forEach(function (coach) {
+        const x = coach[0];
+        const w = coach[1];
+        parent.appendChild(svgNode("rect", { x: x, y: "-5.6", width: w, height: "1.15", fill: "#451a1a" }));
+        parent.appendChild(svgNode("rect", { x: x, y: "-4.6", width: w, height: "8.2", fill: "#7f1d1d" }));
+        parent.appendChild(svgNode("rect", { x: x + 0.7, y: "-3.2", width: w - 1.4, height: "2.2", fill: "#ffedd5" }));
+      });
+      parent.appendChild(svgNode("path", { d: "M4,-6.1 H15.2 L20.6,0 L15.2,6.1 H4 Z", fill: "#dc2626" }));
+      parent.appendChild(svgNode("rect", { x: "6.2", y: "-3.8", width: "4", height: "2.2", fill: "#fee2e2" }));
+      parent.appendChild(svgNode("circle", { cx: "17.8", cy: "-1.6", r: "0.6", fill: "#fff" }));
+      markPantograph(parent, 9.2);
+      [-18, -12, -5, 1, 9, 16].forEach(function (x) { markWheel(parent, x); });
+    }
+
+    function drawBanker(parent) {
+      parent.appendChild(svgNode("rect", { x: "-20.5", y: "-5.7", width: "16.2", height: "9.6", rx: "0.5", fill: "#14532d" }));
+      parent.appendChild(svgNode("rect", { x: "-5.6", y: "-5.7", width: "2.3", height: "9.6", fill: "#facc15" }));
+      parent.appendChild(svgNode("rect", { x: "-16.6", y: "-3.6", width: "3.4", height: "2.1", fill: "#bbf7d0" }));
+      parent.appendChild(svgNode("rect", { x: "-0.6", y: "-5.7", width: "16.4", height: "9.6", rx: "0.5", fill: "#166534" }));
+      parent.appendChild(svgNode("rect", { x: "14.4", y: "-5.7", width: "3.4", height: "9.6", fill: "#facc15" }));
+      parent.appendChild(svgNode("rect", { x: "2.2", y: "-3.6", width: "3.4", height: "2.1", fill: "#bbf7d0" }));
+      parent.appendChild(svgNode("rect", { x: "15.4", y: "-3.2", width: "1.5", height: "2", fill: "#052e16" }));
+      parent.appendChild(svgNode("rect", { x: "-3.2", y: "-0.55", width: "2.6", height: "1.15", fill: "#94a3b8" }));
+      markPantograph(parent, -13);
+      markPantograph(parent, 6);
+      [-16.5, -9, 3.2, 11].forEach(function (x) { markWheel(parent, x); });
+    }
+
+    function drawTanker(parent) {
+      markGoodsLoco(parent);
+      parent.appendChild(svgNode("rect", { x: "-22", y: "2.5", width: "27", height: "1.25", fill: "#334155" }));
+      [-16.5, -6.2, 4.1].forEach(function (cx) {
+        parent.appendChild(svgNode("ellipse", {
+          cx: cx, cy: "-0.4", rx: "4.3", ry: "3.25",
+          fill: "#f1f5f9", stroke: "#64748b", "stroke-width": "0.4"
+        }));
+        parent.appendChild(svgNode("rect", { x: cx - 0.45, y: "-3.5", width: "0.95", height: "6.2", fill: "#dc2626" }));
+        markWheel(parent, cx - 2.1);
+        markWheel(parent, cx + 2.1);
+      });
+    }
+
+    function drawContainer(parent) {
+      markGoodsLoco(parent);
+      parent.appendChild(svgNode("rect", { x: "-22", y: "2.55", width: "27.5", height: "1.15", fill: "#334155" }));
+      [
+        { x: -21.5, bot: "#1d4ed8", top: "#dc2626" },
+        { x: -11.2, bot: "#ea580c", top: "#1d4ed8" },
+        { x: -0.9, bot: "#0f766e", top: "#f59e0b" }
+      ].forEach(function (stack) {
+        parent.appendChild(svgNode("rect", {
+          x: stack.x, y: "-0.7", width: "8.4", height: "3.2",
+          fill: stack.bot, stroke: "#0f172a", "stroke-width": "0.3"
+        }));
+        parent.appendChild(svgNode("rect", {
+          x: stack.x, y: "-4.3", width: "8.4", height: "3.4",
+          fill: stack.top, stroke: "#0f172a", "stroke-width": "0.3"
+        }));
+        parent.appendChild(svgNode("line", {
+          x1: stack.x + 4.2, y1: "-4.3", x2: stack.x + 4.2, y2: "2.5",
+          stroke: "rgba(255,255,255,0.4)", "stroke-width": "0.35"
+        }));
+        markWheel(parent, stack.x + 1.6);
+        markWheel(parent, stack.x + 6.6);
+      });
+    }
+
+    function drawBox(parent) {
+      markGoodsLoco(parent);
+      [-21.2, -11.4, -1.6].forEach(function (x) {
+        parent.appendChild(svgNode("path", {
+          d: "M" + x + ",3.2 L" + (x + 0.9) + ",-3.1 H" + (x + 7.6) + " L" + (x + 8.5) + ",3.2 Z",
+          fill: "#92400e", stroke: "#451a03", "stroke-width": "0.4"
+        }));
+        parent.appendChild(svgNode("path", {
+          d: "M" + (x + 1.5) + ",-3 L" + (x + 4.2) + ",-5.3 L" + (x + 7) + ",-3 Z",
+          fill: "#44403c"
+        }));
+        markWheel(parent, x + 2);
+        markWheel(parent, x + 6.4);
+      });
+    }
+
+    function drawTrainBody(parent, kind) {
+      const painters = {
+        LOCAL: drawLocal,
+        PREMIUM: drawPremium,
+        SUPERFAST: drawSuperfast,
+        EXPRESS: drawExpress,
+        BANKER: drawBanker,
+        TANKER: drawTanker,
+        CONTAINER: drawContainer,
+        BOX: drawBox
+      };
+      (painters[kind] || drawExpress)(parent);
+    }
+
+    function buildTrainSvg(kind, facing, width, height) {
+      const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+      svg.setAttribute("viewBox", "-24 -9 48 18");
+      svg.setAttribute("width", String(width));
+      svg.setAttribute("height", String(height));
+      svg.setAttribute("aria-hidden", "true");
+      const body = svgNode("g", { transform: facing < 0 ? "scale(-1,1)" : "scale(1,1)" });
+      drawTrainBody(body, kind);
+      svg.appendChild(body);
+      return svg;
+    }
+
+    function renderTrainLegend() {
+      const bar = document.getElementById("trainLegend");
+      if (!bar || bar.dataset.ready === "1") return;
+      const note = bar.lastElementChild;
+      ["LOCAL", "PREMIUM", "SUPERFAST", "EXPRESS", "BANKER", "TANKER", "CONTAINER", "BOX"].forEach(function (kind) {
+        const item = document.createElement("span");
+        item.className = "legend-item";
+        item.title = TRAIN_MARK_NAMES[kind];
+        item.appendChild(buildTrainSvg(kind, 1, 52, 20));
+        const caption = document.createElement("span");
+        caption.textContent = TRAIN_MARK_NAMES[kind];
+        item.appendChild(caption);
+        bar.insertBefore(item, note);
+      });
+      bar.dataset.ready = "1";
+    }
+
+    function appendTrainGlyph(group, train) {
+      const nose = train.dir >= 0 ? 1 : -1;
+      const kind = glyphKind(train);
+      const tip = svgNode("title", {});
+      tip.textContent = (train.name || kind) + " · " + (train.id || train.label) + " · " + (TRAIN_MARK_NAMES[kind] || kind);
+      group.appendChild(tip);
+      const scale = 1.05;
+      const body = svgNode("g", { transform: "scale(" + (nose * scale) + "," + scale + ")" });
+      drawTrainBody(body, kind);
+      group.appendChild(body);
+      const labelX = (nose > 0 ? 1 : -1) * (24 * scale + 2);
+      const label = svgNode("text", {
+        x: labelX,
+        y: "4",
+        fill: "#f8fafc",
+        stroke: "#030712",
+        "stroke-width": "2",
+        "paint-order": "stroke",
+        "font-size": "9",
+        "font-weight": "bold",
+        "font-family": "monospace",
+        "text-anchor": nose > 0 ? "start" : "end"
+      });
+      label.textContent = headboard(train);
+      group.appendChild(label);
+    }
+
+    function renderSchematicTrains() {
+      const g = document.getElementById("schematicTrains");
+      if (!g) return;
+      while (g.firstChild) g.removeChild(g.firstChild);
+      fleet.forEach(t => {
+        const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        group.setAttribute("id", t.svgId);
+        group.setAttribute("visibility", "hidden");
+        group.setAttribute("transform", "translate(0,0)");
+        g.appendChild(group);
+      });
+    }
+
+    function paintSchematicTrain(train) {
+      const elem = document.getElementById(train.svgId);
+      if (!elem) return;
+      if (!train.active) {
+        elem.setAttribute("visibility", "hidden");
+        return;
+      }
+      elem.setAttribute("visibility", "visible");
+      const point = schematicPoint(train);
+      elem.setAttribute("transform", `translate(${point.x}, ${point.y})`);
+      const stamp = glyphKind(train) + ":" + train.dir + ":" + train.label;
+      if (elem.dataset.stamp !== stamp) {
+        while (elem.firstChild) elem.removeChild(elem.firstChild);
+        appendTrainGlyph(elem, train);
+        elem.dataset.stamp = stamp;
+      }
+    }
+
+    async function loadMasterData() {
+      const data = await apiGet("/api/master-data");
+      stations = data.stations || [];
+      corridorSections = data.sections || [];
+      if (data.clock) {
+        dayMinutes = Number(data.clock.day_minutes) || 1440;
+        wttMinute = Number(data.clock.start_min);
+        if (!Number.isFinite(wttMinute)) wttMinute = 240;
+        minutesPerSecond = Number(data.clock.minutes_per_second) || 8;
+      }
+      paintClock();
+      fleet = trainsToFleet(data.trains);
+      sharedState.catalogBundles = data.bundles || [];
+      sharedState.catalogDefects = data.defects || [];
+      sharedState.targetBundle = sharedState.catalogBundles[0] || null;
+      if (data.system_state && data.system_state.sanctioned && data.system_state.possession) {
+        sharedState.sanctionStatus = "SANCTIONED";
+        sharedState.possession = data.system_state.possession;
+        alignControlsToPossession();
+      }
+      renderDefectTable(data.defects, data.bundles);
+      applySystemState(data.system_state);
+      renderSchematicStations();
+      bindCorridorSlider();
+      renderSchematicTrains();
+      initElevationChart();
+      renderCOATable();
+      try {
+        const opt = await runOptimizeFromControls();
+        if (opt) {
+          sharedState.targetBundle = opt.target_bundle || sharedState.targetBundle;
+          paintPlanMetrics((opt.candidate_options || [])[sharedState.selectedOption - 1]);
+          paintConsoleFacts(sharedState.targetBundle, (opt.candidate_options || [])[sharedState.selectedOption - 1]);
+        }
+      } catch (e) {
+        console.warn("Optimize call failed:", e);
+        paintConsoleFacts(sharedState.targetBundle, null);
+      }
+      loadAudit();
+      initGISMap();
+      updateBlockGeoCircle();
+    }
+
+    async function syncSystemState() {
+      try {
+        const st = await apiGet("/api/system-state");
+        applySystemState(st);
+      } catch (e) { /* keep local state */ }
+    }
+
+    function applySystemState(st) {
+      if (!st) return;
+      sharedState.lastSystemState = st;
+      if (st.tsr) sharedState.tsr = st.tsr;
+      if (st.sanctioned && st.possession) {
+        sharedState.sanctionStatus = "SANCTIONED";
+        sharedState.sanctionMemo = st.coa_dossier_id || (st.possession && st.possession.coa_dossier_id) || null;
+        sharedState.possession = st.possession;
+        sharedState.dossierSubmitted = true;
+        applySanctionedUi({
+          possession: st.possession,
+          coa_dossier_id: sharedState.sanctionMemo,
+          system_state: st
+        });
+      } else if (st.reject_reason) {
+        paintRejectedChrome();
+      } else if (st.dossier_submitted) {
+        paintSubmittedChrome(st);
+      }
+      paintConsoleFacts(
+        sharedState.targetBundle,
+        (sharedState.candidateOptions || [])[sharedState.selectedOption - 1]
+      );
+    }
+
+    // Interpolate lat/lng along the corridor coordinates
+    function getLatLngAtKm(kmPos) {
+      if (!stations.length) return [18.82, 73.38];
+      if (kmPos <= stations[0].km) return [stations[0].lat, stations[0].lng];
+      if (kmPos >= stations[stations.length - 1].km) return [stations[stations.length - 1].lat, stations[stations.length - 1].lng];
+
+      for (let i = 0; i < stations.length - 1; i++) {
+        const s1 = stations[i];
+        const s2 = stations[i + 1];
+        if (kmPos >= s1.km && kmPos <= s2.km) {
+          const ratio = (kmPos - s1.km) / (s2.km - s1.km);
+          const lat = s1.lat + ratio * (s2.lat - s1.lat);
+          const lng = s1.lng + ratio * (s2.lng - s1.lng);
+          return [lat, lng];
+        }
+      }
+      return [stations[0].lat, stations[0].lng];
+    }
+
+    // Map schematic x coordinate
+    function getSvgXAtKm(kmPos) {
+      const km = Math.max(0, Math.min(192, Number(kmPos) || 0));
+      return SCH_MIN_X + (km / 192.0) * (SCH_MAX_X - SCH_MIN_X);
+    }
+
+    function svgXToKm(xPos) {
+      const span = SCH_MAX_X - SCH_MIN_X;
+      const km = ((Number(xPos) - SCH_MIN_X) / span) * 192;
+      return Math.max(0, Math.min(192, km));
+    }
+
+    function stationCaption(km) {
+      if (!stations.length) return "KM " + km.toFixed(1);
+      let best = stations[0];
+      let bestDist = Math.abs(best.km - km);
+      stations.forEach(station => {
+        const dist = Math.abs(station.km - km);
+        if (dist < bestDist) {
+          best = station;
+          bestDist = dist;
+        }
+      });
+      const near = bestDist <= 6 ? best.code + " · " : "";
+      return near + "KM " + km.toFixed(1);
+    }
+
+    function bindCorridorSlider() {
+      const box = document.getElementById("schematicScroller");
+      const slider = document.getElementById("corridorSlider");
+      const label = document.getElementById("corridorSliderLabel");
+      if (!box || !slider || slider.dataset.bound === "1") return;
+      slider.dataset.bound = "1";
+      const maxScroll = () => Math.max(0, box.scrollWidth - box.clientWidth);
+      const scrollToKm = (km) => {
+        const x = getSvgXAtKm(km);
+        const target = x - box.clientWidth * 0.28;
+        box.scrollLeft = Math.max(0, Math.min(maxScroll(), target));
+      };
+      slider.addEventListener("input", () => {
+        const km = Number(slider.value);
+        scrollToKm(km);
+        if (label) label.textContent = stationCaption(km);
+      });
+      box.addEventListener("scroll", () => {
+        const km = svgXToKm(box.scrollLeft + box.clientWidth * 0.28);
+        if (document.activeElement !== slider) slider.value = km.toFixed(1);
+        if (label) label.textContent = stationCaption(km);
+      });
+    }
+
+    // Populate COA Table
+    function renderCOATable() {
+      const coaTbody = document.getElementById('coaTableBody');
+      coaTbody.innerHTML = "";
+      const visibleFleet = fleet.some(t => t.waypoints && t.waypoints.length) ? fleet.filter(t => t.active) : fleet;
+      visibleFleet.forEach(t => {
+        const tr = document.createElement('tr');
+        const statusText = t.isHeld ? "HELD CLEAR OF THE CLOSED LINE" : "ON WTT PATH";
+        const statusColor = t.isHeld ? "#facc15" : "#4ade80";
+        tr.innerHTML = `
+          <td style="color:#38bdf8; font-weight:bold;">${t.id}</td>
+          <td>${t.name}</td>
+          <td>${t.line}</td>
+          <td>KM ${t.km.toFixed(1)}</td>
+          <td>${t.isHeld ? "0 km/h" : (Number(t.speedKmh) || 0).toFixed(0) + " km/h"}</td>
+          <td style="color:${statusColor}; font-weight:bold;">${statusText}</td>
+        `;
+        coaTbody.appendChild(tr);
+      });
+    }
+
+    // -------------------------------------------------------------
+    // NAVIGATION SWITCHER
+    // -------------------------------------------------------------
+    function switchSection(sec) {
+      document.querySelectorAll('.pills > .btn-nav').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.page-section').forEach(s => s.classList.remove('active'));
+
+      if (sec === 'MAP') {
+        document.getElementById('tabMap').classList.add('active');
+        document.getElementById('secMap').classList.add('active');
+        setTimeout(() => { if (map) map.invalidateSize(); }, 200);
+      } else if (sec === 'OFFICER') {
+        document.getElementById('tabOfficer').classList.add('active');
+        document.getElementById('secOfficer').classList.add('active');
+        loadAudit();
+      } else if (sec === 'CHIEF') {
+        document.getElementById('tabChief').classList.add('active');
+        document.getElementById('secChief').classList.add('active');
+        syncSystemState();
+        loadAudit();
+      } else if (sec === 'AI') {
+        document.getElementById('tabAI').classList.add('active');
+        document.getElementById('secAI').classList.add('active');
+      } else if (sec === 'HORIZON') {
+        document.getElementById('tabHorizon').classList.add('active');
+        document.getElementById('secHorizon').classList.add('active');
+      }
+    }
+
+    // -------------------------------------------------------------
+    // STEP 1: DIVISIONAL MAINTENANCE OFFICER TRANSMITS
+    // -------------------------------------------------------------
+    function paintSubmittedChrome(st) {
+      const state = st || sharedState.lastSystemState || {};
+      sharedState.lastSystemState = state;
+      sharedState.dossierSubmitted = true;
+      sharedState.sanctionStatus = "SUBMITTED";
+      sharedState.blockActiveOnMap = false;
+      sharedState.possession = null;
+      sharedState.sanctionMemo = null;
+      const badge = document.getElementById('officerPermBadge');
+      if (badge) {
+        badge.className = "status-badge status-pending";
+        badge.textContent = "TRANSMITTED • AWAITING CONTROLLER SANCTION";
+      }
+      const button = document.getElementById('btnSubmitDossier');
+      if (button) button.textContent = "DOSSIER TRANSMITTED TO COA (CLICK TO RE-SEND)";
+      const note = document.getElementById('officerPermNote');
+      const ref = dossierRefText(sharedState.targetBundle);
+      const plan = state.active_plan || PLAN_TYPES[sharedState.selectedOption - 1] || "";
+      if (note) note.textContent = "Dossier " + ref + (plan ? " (" + plan + ")" : "") + " is pending on the section controller console.";
+      const workflow = document.getElementById('globalWorkflowStatus');
+      if (workflow) workflow.innerHTML = "<span style='color:#38bdf8;'>Step 2: Dossier Transmitted &bull; Section Controller Review Required</span>";
+      const incoming = document.getElementById('chiefIncomingStatus');
+      if (incoming) incoming.innerHTML = "<span style='color:#facc15;'>ACTION REQUIRED</span>";
+      const sanction = document.getElementById('kpiSanction');
+      if (sanction) {
+        sanction.textContent = "SENT";
+        sanction.style.color = "#38bdf8";
+      }
+      const sanctionSub = document.getElementById('kpiSanctionSub');
+      if (sanctionSub) sanctionSub.textContent = state.submitted_by ? ("With the controller · " + state.submitted_by) : "With the controller";
+      paintConsoleFacts(sharedState.targetBundle, (sharedState.candidateOptions || [])[sharedState.selectedOption - 1]);
+    }
+
+    async function officerSubmitDossier() {
+      try {
+        const data = await apiPost("/api/officer/submit", { plan_type: PLAN_TYPES[sharedState.selectedOption - 1] });
+        if (data.status !== "SUBMITTED") {
+          showToast("TRANSMISSION FAILED", data.message || "Backend did not accept dossier.");
+          return;
+        }
+        paintSubmittedChrome(data.system_state || { active_plan: data.plan_type, submitted_by: "MAINTENANCE_OFFICER", dossier_submitted: true });
+        loadAudit();
+        showToast("DOSSIER TRANSMITTED TO CONTROLLER", data.message);
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/officer/submit. Is the FastAPI server running?");
+      }
+    }
+
+    // -------------------------------------------------------------
+    // STEP 2: SECTION CONTROLLER REVIEWS, MANAGES & SANCTIONS
+    // -------------------------------------------------------------
+    function controllerSelectOption(opt, silent) {
+      sharedState.selectedOption = opt;
+      document.getElementById('chiefCard1').classList.toggle('active', opt === 1);
+      document.getElementById('chiefCard2').classList.toggle('active', opt === 2);
+      document.getElementById('chiefCard3').classList.toggle('active', opt === 3);
+
+      const adv = document.getElementById('chiefAdvisoryText');
+      const chosen = (sharedState.candidateOptions || [])[opt - 1];
+      if (chosen && chosen.start_time_str === "—") {
+        adv.innerHTML = "<strong>" + chosen.profile + ":</strong> The solver found no safe window. Nothing was booked, and the line was not taken.";
+      } else if (chosen) {
+        const windowMin = chosen.total_window_required_min != null ? chosen.total_window_required_min : chosen.net_work_duration_min;
+        adv.innerHTML = `<strong>${chosen.profile} (${chosen.start_time_str} – ${chosen.end_time_str}):</strong> Window ${windowMin} mins. Impacts: ${(chosen.train_impacts||[]).length}. Confidence ${chosen.confidence_score}/100.`;
+      } else if (opt === 1) {
+        adv.innerHTML = "<strong>Option 1 (Night Corridor):</strong> Punctuality-first CP-SAT profile.";
+      } else if (opt === 2) {
+        adv.innerHTML = "<strong>Option 2 (Asset-First):</strong> Higher overdue penalty, freight regulation allowed.";
+      } else {
+        adv.innerHTML = "<strong>Option 3 (Mega Block):</strong> Extended possession for deep overhaul.";
+      }
+      const chosenPlan = (sharedState.candidateOptions || [])[opt - 1];
+      paintPlanMetrics(chosenPlan);
+      paintConsoleFacts(sharedState.targetBundle, chosenPlan);
+      if (!silent) showToast(`OPTION ${opt} SELECTED`, "Section Controller focused on selected maintenance window.");
+    }
+
+    function controlTarget() {
+      const line = document.getElementById("ctrlLineSelect");
+      const sector = document.getElementById("ctrlSectionSelect");
+      return {
+        plan_type: PLAN_TYPES[sharedState.selectedOption - 1] || "PUNCTUALITY_FIRST",
+        minute: wttMinute,
+        target_line: line ? line.value : "MID",
+        sector: sector ? sector.value : "GHAT"
+      };
+    }
+
+    function stepIcon(state) {
+      if (state === "done") return '<i class="fa-solid fa-square-check" style="color:#4ade80;"></i>';
+      if (state === "active") return '<i class="fa-solid fa-square" style="color:#facc15;"></i>';
+      if (state === "na") return '<i class="fa-solid fa-minus" style="color:#64748b;"></i>';
+      return '<i class="fa-regular fa-square" style="color:#64748b;"></i>';
+    }
+
+    function paintWorkGraphics(execution) {
+      const group = document.getElementById("schematicWork");
+      if (!group) return;
+      while (group.firstChild) group.removeChild(group.firstChild);
+      if (!execution || !execution.live || !execution.possession) return;
+      const line = execution.possession.track_line || "MID";
+      const y = railCenterY(line);
+      if (execution.earth_required) {
+        [[execution.earth_up_km, execution.earth_up], [execution.earth_down_km, execution.earth_down]].forEach(pair => {
+          group.appendChild(svgNode("circle", {
+            cx: getSvgXAtKm(pair[0]),
+            cy: y,
+            r: "4.5",
+            fill: pair[1] ? "#facc15" : "#1e293b",
+            stroke: "#fef3c7",
+            "stroke-width": "1"
+          }));
+        });
+      }
+      (execution.machines || []).forEach(machine => {
+        if (!machine.on_line) return;
+        const x = getSvgXAtKm(machine.km);
+        group.appendChild(svgNode("rect", {
+          x: x - 9, y: y - 4, width: "18", height: "8", rx: "1.5",
+          fill: "#f59e0b", stroke: "#fff7ed", "stroke-width": "0.7"
+        }));
+      });
+    }
+
+    function clearClosedLineGraphics() {
+      if (blockMapLine && map) {
+        map.removeLayer(blockMapLine);
+        blockMapLine = null;
+      }
+      if (blockGeoCircle && map) {
+        map.removeLayer(blockGeoCircle);
+        blockGeoCircle = null;
+      }
+      paintWorkGraphics(null);
+    }
+
+    function cautionNote() {
+      const tsr = sharedState.tsr;
+      if (!tsr) return "";
+      return " · TSR " + Number(tsr.max_kmh).toFixed(0) + " km/h (+" + Number(tsr.extra_minutes).toFixed(1) + " min)";
+    }
+
+    function paintExecution(execution) {
+      const banner = document.getElementById("executionBanner");
+      const checklist = document.getElementById("safetyChecklist");
+      const machines = document.getElementById("machineTelemetryBody");
+      const kavach = document.getElementById("kavachDetail");
+      const alertBox = document.getElementById("kavachMapAlert");
+      if (!execution || !execution.possession) {
+        paintWorkGraphics(null);
+        if (sharedState.sanctionStatus === "CLEARED" || sharedState.sanctionStatus === "REJECTED") {
+          clearClosedLineGraphics();
+        }
+        return;
+      }
+      const possession = execution.possession;
+      sharedState.possession = possession;
+      sharedState.blockActiveOnMap = !!execution.live;
+      const held = Object.keys(serverSamples).filter(id => serverSamples[id] && serverSamples[id].status === "HELD");
+      if (banner) {
+        if (execution.live) {
+          banner.innerHTML = "&bull; <strong>Possession:</strong> LIVE " + execution.phase +
+            " · Power " + execution.power +
+            " · Earth near " + (execution.earth_up ? "ON" : "OFF") +
+            " / far " + (execution.earth_down ? "ON" : "OFF") +
+            " · Trains inside the closed line: " + execution.trains_inside_count;
+        } else if (wttMinute >= Number(possession.end_min)) {
+          banner.innerHTML = "&bull; <strong>Possession:</strong> Today's window ended at " + possession.end_hhmm +
+            ". It comes around again at " + possession.start_hhmm + " (" +
+            Math.max(0, Math.round(execution.starts_in_min)) + " timetable minutes). Block Line takes the line at the current clock.";
+        } else {
+          banner.innerHTML = "&bull; <strong>Possession:</strong> Sanctioned " + possession.start_hhmm +
+            "–" + possession.end_hhmm + ". The line is still open (" +
+            Math.max(0, Math.round(execution.starts_in_min)) + " timetable minutes). Block Line takes it now.";
+        }
+      }
+      if (checklist) {
+        checklist.innerHTML = (execution.steps || []).map(step =>
+          "<div>" + stepIcon(step.state) + " " + step.label + "</div>"
+        ).join("");
+      }
+      if (machines) {
+        const rows = execution.machines || [];
+        machines.innerHTML = rows.length ? rows.map(machine => {
+          const where = machine.at_site ? "on the worksite" : (machine.on_line ? "moving on the closed line" : "standing at the depot");
+          return "<div>&bull; <strong style=\"color:#fff;\">" + machine.machine_type + " " + machine.unit_index +
+            ":</strong> KM " + Number(machine.km).toFixed(2) + " · " + where + "</div>";
+        }).join("") : "This possession does not need a track machine.";
+      }
+      const lineState = document.getElementById("mapMidLineStatus");
+      const badge = document.getElementById("mapSanctionBadge");
+      const officerBadge = document.getElementById("officerPermBadge");
+      if (officerBadge && sharedState.sanctionStatus === "SANCTIONED") {
+        officerBadge.className = "status-badge status-sanctioned";
+        officerBadge.textContent = execution.live ? "LINE TAKEN" : ("ORDER LOCKED — " + lockedWindowPhrase());
+      }
+      const sanctionSub = document.getElementById("kpiSanctionSub");
+      if (sanctionSub && sharedState.sanctionStatus === "SANCTIONED") {
+        sanctionSub.textContent = execution.live ? "Line taken" : lockedWindowPhrase();
+      }
+      if (execution.live) {
+        if (lineState) {
+          lineState.innerHTML = "<strong style=\"color:#ef4444;\">" + possession.track_line + " CLOSED KM " +
+            Number(possession.closed_start_km).toFixed(1) + "–" + Number(possession.closed_end_km).toFixed(1) + "</strong>" + cautionNote();
+        }
+        if (badge) badge.innerText = "LINE CLOSED";
+        const sig = document.getElementById("sigMidLine");
+        const sigLabel = document.getElementById("sigMidLabel");
+        if (sig) sig.setAttribute("fill", "#ef4444");
+        if (sigLabel) {
+          sigLabel.setAttribute("fill", "#ef4444");
+          sigLabel.textContent = "RED";
+        }
+      } else if (sharedState.sanctionStatus === "SANCTIONED") {
+        if (lineState) lineState.innerHTML = "<span style=\"color:#facc15;\">Sanctioned · line open until " + possession.start_hhmm + "</span>" + cautionNote();
+        if (badge) badge.innerText = "SANCTIONED " + possession.start_hhmm;
+        const sig = document.getElementById("sigMidLine");
+        const sigLabel = document.getElementById("sigMidLabel");
+        if (sig) sig.setAttribute("fill", "#22c55e");
+        if (sigLabel) {
+          sigLabel.setAttribute("fill", "#22c55e");
+          sigLabel.textContent = "GREEN";
+        }
+      }
+      if (alertBox) alertBox.style.display = (execution.live && held.length) ? "block" : "none";
+      if (kavach) {
+        kavach.textContent = held.length
+          ? held.slice(0, 4).join(", ") + " held clear of " + possession.track_line + "."
+          : "No train is inside the closed line.";
+      }
+      const target = document.getElementById("docketTarget");
+      if (target) {
+        target.textContent = possession.track_line + " KM " + Number(possession.closed_start_km).toFixed(1) +
+          "–" + Number(possession.closed_end_km).toFixed(1) + " · " + possession.start_hhmm + "–" + possession.end_hhmm;
+      }
+      const possess = document.getElementById("docketPossession");
+      if (possess) {
+        possess.textContent = execution.live ? "LINE TAKEN — WORK SEQUENCE RUNNING" : "ORDER LOCKED — LINE NOT TAKEN YET";
+        possess.style.color = execution.live ? "#4ade80" : "#facc15";
+      }
+      paintWorkGraphics(execution);
+      updateBlockGeoCircle();
+    }
+
+    function applySanctionedUi(data, planLabel) {
+      const possession = (data && data.possession) || (data && data.execution && data.execution.possession);
+      if (data && data.system_state) sharedState.lastSystemState = data.system_state;
+      sharedState.sanctionStatus = "SANCTIONED";
+      sharedState.dossierSubmitted = true;
+      sharedState.sanctionMemo = (data && data.coa_dossier_id) || (possession && possession.coa_dossier_id) || sharedState.sanctionMemo;
+      if (possession) sharedState.possession = possession;
+      sharedState.blockActiveOnMap = !!(data && data.execution && data.execution.live);
+
+      document.getElementById('officerPermBadge').className = "status-badge status-sanctioned";
+      document.getElementById('officerPermBadge').innerText = sharedState.blockActiveOnMap ? "LINE TAKEN" : ("ORDER LOCKED — " + lockedWindowPhrase());
+      document.getElementById('docketBadge').innerText = "STATUS: OFFICIALLY SANCTIONED";
+      document.getElementById('docketBadge').style.color = "#4ade80";
+      document.getElementById('docketWindow').innerText = possession
+        ? (possession.start_hhmm + " – " + possession.end_hhmm)
+        : (planLabel || "Sanctioned");
+      const orderRef = sharedState.sanctionMemo || dossierRefText(sharedState.targetBundle);
+      document.getElementById('docketMemo').innerText = orderRef;
+      document.getElementById('docketMemo').style.color = "#4ade80";
+      document.getElementById('chiefIncomingStatus').innerHTML = "<span style='color:#4ade80;'>SANCTIONED</span>";
+      document.getElementById('mapSanctionBadge').className = "status-badge status-sanctioned";
+      document.getElementById('kpiSanction').innerText = "SANCTIONED";
+      document.getElementById('kpiSanction').style.color = "#4ade80";
+      document.getElementById('kpiSanctionSub').innerText = sharedState.blockActiveOnMap ? "Line taken" : lockedWindowPhrase();
+      const orderName = sharedState.sanctionMemo ? ("COA Order " + sharedState.sanctionMemo) : ("Order " + dossierRefText(sharedState.targetBundle));
+      document.getElementById('globalWorkflowStatus').innerHTML = "<span style='color:#4ade80;'>Step 3: " + orderName + " Locked</span>";
+      const note = document.getElementById("officerPermNote");
+      if (note) {
+        note.textContent = sharedState.blockActiveOnMap
+          ? "The section controller has taken the line. The work sequence is on the safety list."
+          : "The section controller has locked this order. The line closes when the window starts, or when Block Line is used.";
+      }
+      paintConsoleFacts(sharedState.targetBundle, (sharedState.candidateOptions || [])[sharedState.selectedOption - 1]);
+      if (data && data.execution) paintExecution(data.execution);
+      else updateBlockGeoCircle();
+      refreshLiveCount();
+    }
+
+    function paintRejectedChrome() {
+      sharedState.sanctionStatus = "REJECTED";
+      sharedState.blockActiveOnMap = false;
+      sharedState.possession = null;
+      sharedState.sanctionMemo = null;
+      const reason = (sharedState.lastSystemState && sharedState.lastSystemState.reject_reason) || "Capacity constraints";
+      const badge = document.getElementById('officerPermBadge');
+      if (badge) {
+        badge.className = "status-badge status-rejected";
+        badge.textContent = "PERMIT REJECTED";
+      }
+      const note = document.getElementById('officerPermNote');
+      if (note) note.textContent = "The section controller rejected this dossier. " + reason;
+      const docketBadge = document.getElementById('docketBadge');
+      if (docketBadge) {
+        docketBadge.textContent = "STATUS: REJECTED";
+        docketBadge.style.color = "#ef4444";
+      }
+      const possess = document.getElementById('docketPossession');
+      if (possess) {
+        possess.textContent = "POSSESSION DENIED";
+        possess.style.color = "#ef4444";
+      }
+      const memo = document.getElementById('docketMemo');
+      if (memo) {
+        memo.textContent = "Not issued";
+        memo.style.color = "#94a3b8";
+      }
+      const mapBadge = document.getElementById('mapSanctionBadge');
+      if (mapBadge) {
+        mapBadge.className = "status-badge status-rejected";
+        mapBadge.textContent = "REQUEST REJECTED";
+      }
+      const zone = document.getElementById('schematicBlockZone');
+      const zoneText = document.getElementById('schematicBlockText');
+      if (zone) zone.setAttribute('fill', 'rgba(239, 68, 68, 0.15)');
+      if (zoneText) zoneText.textContent = "BLOCK CANCELLED";
+      const sig = document.getElementById('sigMidLine');
+      const sigLabel = document.getElementById('sigMidLabel');
+      if (sig) sig.setAttribute('fill', '#22c55e');
+      if (sigLabel) sigLabel.textContent = "GREEN";
+      const alertBox = document.getElementById('kavachMapAlert');
+      if (alertBox) alertBox.style.display = 'none';
+      const banner = document.getElementById("executionBanner");
+      if (banner) banner.innerHTML = "&bull; <strong>Possession:</strong> Rejected. The line was not taken.";
+      const checklist = document.getElementById("safetyChecklist");
+      if (checklist) checklist.textContent = "Permits were not issued.";
+      const incoming = document.getElementById('chiefIncomingStatus');
+      if (incoming) incoming.innerHTML = "<span style='color:#ef4444;'>REJECTED</span>";
+      const sanction = document.getElementById('kpiSanction');
+      if (sanction) {
+        sanction.textContent = "REJECTED";
+        sanction.style.color = "#ef4444";
+      }
+      const sanctionSub = document.getElementById('kpiSanctionSub');
+      if (sanctionSub) sanctionSub.textContent = "Sent back";
+      const workflow = document.getElementById('globalWorkflowStatus');
+      if (workflow) {
+        workflow.textContent = "";
+        const mark = document.createElement("span");
+        mark.style.color = "#ef4444";
+        mark.textContent = "Dossier rejected · " + reason;
+        workflow.appendChild(mark);
+      }
+      clearClosedLineGraphics();
+      paintWorkGraphics(null);
+      renderCOATable();
+      paintConsoleFacts(sharedState.targetBundle, (sharedState.candidateOptions || [])[sharedState.selectedOption - 1]);
+    }
+
+    async function controllerApproveBlock() {
+      try {
+        const data = await apiPost("/api/chief/sanction", controlTarget());
+        if (data.status !== "SANCTIONED") {
+          showToast("NO SAFE WINDOW", data.message || "The solver did not find a possession. The line was not taken.");
+          return;
+        }
+        applySanctionedUi(data);
+        loadAudit();
+        showToast("BLOCK SANCTIONED", data.message);
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/chief/sanction.");
+      }
+    }
+
+    async function controllerRejectBlock() {
+      try {
+        const reasonInput = document.getElementById("rejectReason");
+        const reason = (reasonInput && reasonInput.value.trim()) || "Capacity constraints";
+        const data = await apiPost("/api/chief/reject", { reason: reason });
+        if (data.status !== "REJECTED") {
+          showToast("REJECT FAILED", data.message || "Unexpected response");
+          return;
+        }
+        if (data.system_state) sharedState.lastSystemState = data.system_state;
+        paintRejectedChrome();
+        loadAudit();
+        showToast("BLOCK REJECTED", data.message);
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/chief/reject.");
+      }
+    }
+
+    async function controllerForceShift() {
+      try {
+        const data = await apiPost("/api/chief/shift", { delta_min: 30 });
+        if (data.status === "SHIFTED" && data.possession) applySanctionedUi(data);
+        if (data.status === "SHIFTED") {
+          loadAudit();
+          runOptimizeFromControls().catch(function () {
+          showToast("API ERROR", "Could not refresh the options after the shift.");
+          });
+        }
+        showToast(data.status === "SHIFTED" ? "WINDOW MOVED" : "SHIFT REFUSED", data.message || "");
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/chief/shift.");
+      }
+    }
+
+    async function controllerManualBlock() {
+      try {
+        const data = await apiPost("/api/chief/take-line", controlTarget());
+        if (data.status !== "SANCTIONED") {
+          showToast("LINE NOT TAKEN", data.message || "The backend refused the possession.");
+          return;
+        }
+        applySanctionedUi(data);
+        loadAudit();
+        showToast("LINE TAKEN", data.message);
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/chief/take-line.");
+      }
+    }
+
+    async function controllerManualCaution() {
+      try {
+        const data = await apiPost("/api/chief/caution", {});
+        sharedState.tsr = data.tsr || null;
+        if (!sharedState.blockActiveOnMap) {
+          const lineState = document.getElementById("mapMidLineStatus");
+          if (lineState) lineState.innerHTML = "<span style=\"color:#facc15;\">" + (data.message || "Caution order recorded.") + "</span>";
+        }
+        showToast("CAUTION ORDER", data.message || "TSR recorded.");
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/chief/caution.");
+      }
+    }
+
+    async function controllerManualClear() {
+      try {
+        const data = await apiPost("/api/chief/clear", {});
+        if (data.system_state) sharedState.lastSystemState = data.system_state;
+        sharedState.sanctionStatus = "CLEARED";
+        sharedState.dossierSubmitted = false;
+        sharedState.blockActiveOnMap = false;
+        sharedState.possession = null;
+        sharedState.sanctionMemo = null;
+        sharedState.tsr = null;
+        const officerBadge = document.getElementById('officerPermBadge');
+        if (officerBadge) {
+          officerBadge.className = "status-badge status-pending";
+          officerBadge.textContent = "LINE RESTORED — AWAITING A NEW REQUEST";
+        }
+        const note = document.getElementById('officerPermNote');
+        if (note) note.textContent = "The possession is closed. Transmit again when the next dossier is ready.";
+        const docketBadge = document.getElementById('docketBadge');
+        if (docketBadge) {
+          docketBadge.textContent = "STATUS: CLEARED";
+          docketBadge.style.color = "#4ade80";
+        }
+        const possess = document.getElementById('docketPossession');
+        if (possess) {
+          possess.textContent = "Line given back";
+          possess.style.color = "#4ade80";
+        }
+        const submitButton = document.getElementById('btnSubmitDossier');
+        if (submitButton) submitButton.innerHTML = '<i class="fa-solid fa-paper-plane"></i> TRANSMIT REQUEST TO CONTROLLER';
+        const incoming = document.getElementById('chiefIncomingStatus');
+        if (incoming) incoming.innerHTML = "<span style='color:#4ade80;'>LINE RESTORED</span>";
+        const workflow = document.getElementById('globalWorkflowStatus');
+        if (workflow) workflow.innerHTML = "<span style='color:#4ade80;'>Line restored &bull; Awaiting the next dossier</span>";
+        paintConsoleFacts(sharedState.targetBundle, (sharedState.candidateOptions || [])[sharedState.selectedOption - 1]);
+        loadAudit();
+        document.getElementById('mapSanctionBadge').className = "status-badge status-sanctioned";
+        document.getElementById('mapSanctionBadge').innerText = "LINE RESTORED";
+        document.getElementById('mapMidLineStatus').innerHTML = "<span style='color:#4ade80;'>Line given back. Feeder live.</span>";
+        document.getElementById('schematicBlockZone').setAttribute('fill', 'rgba(34, 197, 94, 0.15)');
+        document.getElementById('schematicBlockText').textContent = "LINE CLEAR";
+        document.getElementById('sigMidLine').setAttribute('fill', '#22c55e');
+        document.getElementById('sigMidLabel').setAttribute('fill', '#22c55e');
+        document.getElementById('sigMidLabel').textContent = "GREEN";
+        document.getElementById('kavachMapAlert').style.display = 'none';
+        paintWorkGraphics(null);
+        document.getElementById('kpiSanction').innerText = "CLEARED";
+        document.getElementById('kpiSanction').style.color = "#4ade80";
+        document.getElementById('kpiSanctionSub').innerText = "Line restored";
+        const checklist = document.getElementById("safetyChecklist");
+        if (checklist) checklist.textContent = "Line given back. Permits are closed.";
+        const banner = document.getElementById("executionBanner");
+        if (banner) banner.innerHTML = "&bull; <strong>Possession:</strong> Cleared. Trains are back on the working timetable.";
+        clearClosedLineGraphics();
+        renderCOATable();
+        refreshLiveCount();
+        showToast("LINE CLEARED", data.message);
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/chief/clear.");
+      }
+    }
+
+    async function triggerEmergencyFracture() {
+      try {
+        const data = await apiPost("/api/simulate-emergency", { minute: wttMinute, target_line: "MID", sector: "GHAT" });
+        const km = 111.4;
+        const latlng = getLatLngAtKm(km);
+        if (map) {
+          if (emergencyGeoCircle) map.removeLayer(emergencyGeoCircle);
+          emergencyGeoCircle = L.circle(latlng, {
+            color: '#ef4444', fillColor: '#ef4444', fillOpacity: 0.45, radius: 280
+          }).addTo(map);
+          emergencyGeoCircle.bindPopup("<b>EMERGENCY RAIL FRACTURE</b><br>KM 111.4 MID Line");
+        }
+        const svgX = getSvgXAtKm(km);
+        const emRect = document.getElementById('emergencyBlockZone');
+        const emText = document.getElementById('emergencyBlockText');
+        if (emRect) {
+          emRect.setAttribute('x', svgX - 40);
+          emRect.setAttribute('y', String(railCenterY("MID") - 12));
+          emRect.setAttribute('width', '80');
+          emRect.setAttribute('height', '24');
+          emRect.setAttribute('visibility', 'visible');
+        }
+        if (emText) {
+          emText.setAttribute('x', svgX);
+          emText.setAttribute('y', String(railCenterY("MID") + 4));
+          emText.setAttribute('visibility', 'visible');
+        }
+        applySanctionedUi(data, "EMERGENCY");
+        loadAudit();
+        showToast("EMERGENCY RAIL FRACTURE DETECTED (KM 111.4)", data.event + " — " + (data.dispatched_plan && data.dispatched_plan.feasible ? "Replan feasible" : "Replan infeasible / dispatched"));
+        switchSection('MAP');
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/simulate-emergency.");
+      }
+    }
+
+    async function reRunWhatIf() {
+      const passW = document.getElementById('sliderPassWeight').value;
+      const overdueW = document.getElementById('sliderOverdueWeight').value;
+      try {
+        const data = await runOptimizeFromControls();
+        if (!data) return;
+        showToast("SENSITIVITY RE-SOLVED", `OR-Tools returned ${(data.candidate_options||[]).length} Pareto options with pass=${passW}, overdue=${overdueW}.`);
+      } catch (e) {
+        showToast("API ERROR", "Could not reach /api/optimize. Start the FastAPI server.");
+      }
+    }
+
+    function showToast(title, desc) {
+      const hud = document.getElementById('hudAlert');
+      document.getElementById('hudTitle').innerText = title;
+      document.getElementById('hudDesc').innerText = desc;
+      hud.style.display = 'block';
+      setTimeout(() => { hud.style.display = 'none'; }, 4500);
+    }
+
+    // -------------------------------------------------------------
+    // LEAFLET GIS MAP ENGINE (LIVE TRAINS ON ACTUAL MAP)
+    // -------------------------------------------------------------
+    let map;
+    let blockGeoCircle;
+    let blockMapLine = null;
+    const mapTrainMarkers = {};
+
+    function blockGeometry() {
+      const possession = sharedState.possession;
+      if (possession && possession.closed_start_km != null) {
+        return {
+          start: Number(possession.closed_start_km),
+          end: Number(possession.closed_end_km),
+          line: possession.track_line || "MID",
+          live: wttMinute >= Number(possession.start_min) && wttMinute < Number(possession.end_min)
+        };
+      }
+      const tb = sharedState.targetBundle;
+      if (!tb || tb.start_km == null || tb.end_km == null) return null;
+      return {
+        start: Number(tb.start_km),
+        end: Number(tb.end_km),
+        line: tb.track_line || "MID",
+        live: false
+      };
+    }
+
+    function trackLateral(line) {
+      const name = String(line || "");
+      if (name === "MID") return 0;
+      if (name.indexOf("UP") === 0) return 1;
+      return -1;
+    }
+
+    function offsetLatLng(kmPos, line) {
+      const here = getLatLngAtKm(kmPos);
+      const ahead = getLatLngAtKm(Math.min(192, Number(kmPos) + 0.5));
+      const dy = ahead[0] - here[0];
+      const dx = ahead[1] - here[1];
+      const len = Math.hypot(dx, dy) || 1;
+      const mag = trackLateral(line) * 0.0035;
+      return [here[0] + (-dx / len) * mag, here[1] + (dy / len) * mag];
+    }
+
+    function paintMapBlock(geom) {
+      if (!map || !geom) return;
+      const points = [];
+      const span = Math.max(0.2, geom.end - geom.start);
+      const step = Math.max(0.35, span / 20);
+      for (let km = geom.start; km <= geom.end + 0.001; km += step) {
+        points.push(offsetLatLng(Math.min(geom.end, km), geom.line));
+      }
+      if (points.length < 2) return;
+      if (blockMapLine) map.removeLayer(blockMapLine);
+      blockMapLine = L.polyline(points, {
+        color: geom.live ? "#ef4444" : "#f59e0b",
+        weight: geom.live ? 7 : 4,
+        opacity: 0.95
+      }).addTo(map);
+      blockMapLine.bindPopup(
+        "<b>" + (geom.live ? "LINE CLOSED" : "PLANNED POSSESSION") + "</b><br>" +
+        geom.line + " KM " + geom.start.toFixed(1) + " – " + geom.end.toFixed(1)
+      );
+      if (blockGeoCircle) {
+        map.removeLayer(blockGeoCircle);
+        blockGeoCircle = null;
+      }
+    }
+
+    function updateBlockGeoCircle() {
+      const geom = blockGeometry();
+      if (!geom) return;
+      paintMapBlock(geom);
+      const x1 = getSvgXAtKm(geom.start);
+      const x2 = getSvgXAtKm(geom.end);
+      const rect = document.getElementById("schematicBlockZone");
+      const label = document.getElementById("schematicBlockText");
+      const railY = railCenterY(geom.line || "MID");
+      if (rect) {
+        const left = Math.min(x1, x2);
+        const width = Math.max(18, Math.abs(x2 - x1));
+        rect.setAttribute("x", left);
+        rect.setAttribute("y", railY - 7);
+        rect.setAttribute("width", width);
+        rect.setAttribute("height", "14");
+        if (geom.live) {
+          rect.setAttribute("fill", "url(#hazard)");
+          rect.setAttribute("stroke", "#ef4444");
+        } else if (sharedState.possession) {
+          rect.setAttribute("fill", "rgba(245, 158, 11, 0.28)");
+          rect.setAttribute("stroke", "#f59e0b");
+        }
+      }
+      if (label) {
+        label.setAttribute("x", (x1 + x2) / 2);
+        label.setAttribute("y", railY - 10);
+        if (geom.live) {
+          label.textContent = "LINE CLOSED";
+          label.setAttribute("fill", "#ffffff");
+        } else if (sharedState.possession) {
+          label.textContent = "SANCTIONED " + sharedState.possession.start_hhmm;
+          label.setAttribute("fill", "#facc15");
+        } else if (sharedState.sanctionStatus !== "REJECTED" && sharedState.sanctionStatus !== "CLEARED") {
+          label.textContent = "PROPOSED BLOCK";
+          label.setAttribute("fill", "#facc15");
+        }
+      }
+      const sig = document.getElementById("sigMidLine");
+      const sigLabel = document.getElementById("sigMidLabel");
+      if (sig) sig.setAttribute("cy", railY);
+      if (sigLabel) {
+        sigLabel.setAttribute("x", String(Math.min(x1, x2) - 8));
+        sigLabel.setAttribute("y", railY - 8);
+      }
+    }
+
+    function mapTrainHtml(t) {
+      const kind = glyphKind(t);
+      const edge = TRAIN_MARK_EDGE[kind] || "#38bdf8";
+      const svg = buildTrainSvg(kind, t.dir >= 0 ? 1 : -1, 46, 16);
+      const name = TRAIN_MARK_NAMES[kind] || kind;
+      return `<div class="train-map-marker" style="--mark:${edge}" title="${name} · ${t.name || ""}">${svg.outerHTML}<span>${headboard(t)}</span></div>`;
+    }
+
+    function trainMapIcon(t) {
+      return L.divIcon({
+        className: "custom-train-div",
+        html: mapTrainHtml(t),
+        iconSize: [46, 16],
+        iconAnchor: [16, 8]
+      });
+    }
+
+    function initGISMap() {
+      if (!stations.length) return;
+      if (map) {
+        map.invalidateSize();
+        return;
+      }
+      map = L.map('gisMap').setView([18.82, 73.38], 10);
+
+      // Basemap Tiles
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 18
+      }).addTo(map);
+
+      // OpenRailwayMap Standard Rail Infrastructure
+      L.tileLayer('https://{s}.tiles.openrailwaymap.org/standard/{z}/{x}/{y}.png', {
+        attribution: 'Map data: &copy; OpenRailwayMap contributors',
+        maxZoom: 18
+      }).addTo(map);
+
+      // Track Polyline (CSMT to Pune Jn)
+      const trackCoords = stations.map(s => [s.lat, s.lng]);
+      L.polyline(trackCoords, { color: '#38bdf8', weight: 4, opacity: 0.85 }).addTo(map);
+
+      // Station Pins
+      stations.forEach(s => {
+        const isKey = (s.km === 0 || s.km === 100 || s.km === 128 || s.km === 192);
+        const marker = L.circleMarker([s.lat, s.lng], {
+          radius: isKey ? 6 : 4,
+          fillColor: isKey ? '#facc15' : '#38bdf8',
+          color: '#ffffff',
+          weight: 1.5,
+          fillOpacity: 1
+        }).addTo(map);
+        marker.bindPopup(`<b>${s.name} (${s.code})</b><br>Chainage: KM ${s.km}<br>Altitude: ${s.elev}m MSL`);
+      });
+
+      updateBlockGeoCircle();
+      fleet.forEach(t => {
+        const latlng = offsetLatLng(t.km, t.line);
+        const marker = L.marker(latlng, { icon: trainMapIcon(t), opacity: 0 }).addTo(map);
+        marker._markStamp = glyphKind(t) + ":" + t.dir;
+        mapTrainMarkers[t.id] = marker;
+      });
+    }
+
+    function initElevationChart() {
+      if (!stations.length) return;
+      const ctx = document.getElementById('chartElev').getContext('2d');
+      if (elevationChart) elevationChart.destroy();
+      elevationChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: stations.map(s => s.code),
+          datasets: [{
+            label: 'Altitude (m)',
+            data: stations.map(s => s.elev),
+            borderColor: '#38bdf8',
+            backgroundColor: 'rgba(56, 189, 248, 0.15)',
+            fill: true,
+            tension: 0.3,
+            pointRadius: 2.5
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: {
+            x: { ticks: { color: '#94a3b8', font: { size: 7.5 } }, grid: { color: '#1e293b' } },
+            y: { ticks: { color: '#94a3b8', font: { size: 7.5 } }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+    }
+
+    // -------------------------------------------------------------
+    // LIVE DUAL ANIMATION ENGINE (LEAFLET MAP + SVG SCHEMATIC)
+    // -------------------------------------------------------------
+    function syncTrainGraphics(train) {
+      if (mapTrainMarkers[train.id]) {
+        const marker = mapTrainMarkers[train.id];
+        if (train.active) {
+          const stamp = glyphKind(train) + ":" + train.dir;
+          if (marker._markStamp !== stamp) {
+            marker.setIcon(trainMapIcon(train));
+            marker._markStamp = stamp;
+          }
+          marker.setOpacity(1);
+          marker.setLatLng(offsetLatLng(train.km, train.line));
+        } else {
+          marker.setOpacity(0);
+        }
+      }
+      paintSchematicTrain(train);
+    }
+
+    function extrapolateTrain(train) {
+      if (!train.active) return;
+      if (train.isHeld || !(train.speedKmh > 0)) {
+        train.km = train.anchorKm;
+        return;
+      }
+      const dtMin = ((performance.now() - train.anchorMs) / 1000) * minutesPerSecond;
+      let km = train.anchorKm + train.dir * train.speedKmh * dtMin / 60;
+      const possession = sharedState.possession;
+      if (possession && wttMinute >= Number(possession.start_min) && wttMinute < Number(possession.end_min)) {
+        const lines = possession.protected_lines || [];
+        if (lines.indexOf(train.line) >= 0 && km > Number(possession.closed_start_km) && km < Number(possession.closed_end_km)) {
+          km = train.dir >= 0
+            ? Number(possession.closed_start_km) - Number(possession.approach_km)
+            : Number(possession.closed_end_km) + Number(possession.approach_km);
+          train.speedKmh = 0;
+          train.isHeld = true;
+        }
+      }
+      train.km = Math.max(0, Math.min(192, km));
+    }
+
+    function applyServerPositions(data) {
+      serverDriven = true;
+      serverAt = performance.now();
+      const byId = {};
+      (data.active || []).forEach(row => { byId[row.train_id] = row; });
+      serverSamples = byId;
+      fleet.forEach(train => {
+        const row = byId[train.id];
+        train.active = !!row;
+        if (!row) {
+          train.speedKmh = 0;
+          train.isHeld = false;
+          return;
+        }
+        train.km = Number(row.current_km);
+        train.line = row.current_line || train.line;
+        train.speedKmh = Number(row.speed_kmh) || 0;
+        train.isHeld = row.status === "HELD";
+        train.status = row.status;
+        train.dir = row.direction === "UP" ? -1 : 1;
+        train.anchorKm = train.km;
+        train.anchorMs = serverAt;
+        if (row.name) train.name = row.name;
+      });
+      if (data.execution) paintExecution(data.execution);
+      fleet.forEach(syncTrainGraphics);
+    }
+
+    function placeTrainOnClock(train) {
+      if (serverDriven && (performance.now() - serverAt) < 5000 && Number.isFinite(train.anchorKm)) {
+        extrapolateTrain(train);
+        syncTrainGraphics(train);
+        return;
+      }
+      const previousKm = train.km;
+      let active = inDutyWindow(train, wttMinute);
+      const pose = active ? poseAt(train, wttMinute) : null;
+      if (!pose) active = false;
+      if (active && train.type === "LOCAL") {
+        if (pose.km < train.minKm - 0.05 || pose.km > train.maxKm + 0.05) active = false;
+        pose.km = Math.min(train.maxKm, Math.max(train.minKm, pose.km));
+      }
+      if (active && train.type === "BANKER") {
+        if (pose.km < 99.8 || pose.km > 128.2) active = false;
+        pose.km = Math.min(128, Math.max(100, pose.km));
+      }
+      train.active = active;
+      train.isHeld = false;
+      if (!active) {
+        train.speedKmh = 0;
+      } else {
+        train.km = pose.km;
+        train.line = pose.line || train.line;
+        train.speedKmh = pose.speed;
+        if (Math.abs(train.km - previousKm) > 0.02) train.dir = train.km > previousKm ? 1 : -1;
+      }
+      syncTrainGraphics(train);
+    }
+
+    async function refreshLiveCount() {
+      try {
+        const data = await apiGet("/api/positions?minute=" + encodeURIComponent(wttMinute.toFixed(2)));
+        applyServerPositions(data);
+        const rows = data.active || [];
+        const locals = rows.filter(row => row.train_type === "LOCAL").length;
+        const bankers = rows.filter(row => row.train_type === "BANKER").length;
+        const held = rows.filter(row => row.status === "HELD").length;
+        const sub = document.getElementById("wttClockSub");
+        if (sub) sub.textContent = rows.length + " ON LINE · " + locals + " LOCAL · " + bankers + " BANKER" + (held ? " · " + held + " HELD" : "");
+        paintOnLine(rows.length, held ? (held + " held clear of the block") : (locals + " local · " + bankers + " banker"));
+      } catch (e) { /* clock keeps running from the loaded timetable */ }
+    }
+
+    setInterval(() => {
+      const now = performance.now();
+      if (!lastClockMs) lastClockMs = now;
+      const dt = Math.min(0.5, (now - lastClockMs) / 1000);
+      lastClockMs = now;
+      wttMinute = clockMod(wttMinute + dt * minutesPerSecond, dayMinutes);
+      paintClock();
+      fleet.forEach(placeTrainOnClock);
+      if (now - positionPollAt > 350) {
+        positionPollAt = now;
+        refreshLiveCount();
+        renderCOATable();
+      }
+    }, 100);
+
+    // -----------------------------------------------------------------
+    // WEEKLY / MONTHLY PLANNING HORIZON  (calendar_plan.py via API)
+    // -----------------------------------------------------------------
+    async function loadHorizonPlan(numDays) {
+      const wrap    = document.getElementById('horizonWeeksWrap');
+      const summary = document.getElementById('horizonSummaryBar');
+      const loading = document.getElementById('horizonLoadingMsg');
+      const metaLbl = document.getElementById('horizonMetaLabel');
+      const btnW    = document.getElementById('btnHorizonWeekly');
+      const btnM    = document.getElementById('btnHorizonMonthly');
+
+      btnW.classList.toggle('active', numDays === 7);
+      btnM.classList.toggle('active', numDays !== 7);
+      wrap.innerHTML = '<div class="mono" style="color:#334455;font-size:0.72rem;padding:12px 0;">COMPUTING POSSESSION PLAN…</div>';
+      summary.style.display = 'none';
+      loading.style.display = 'inline';
+
+      try {
+        const data = await apiGet('/api/horizon-plan?days=' + numDays);
+        loading.style.display = 'none';
+
+        metaLbl.textContent =
+          numDays + '-DAY HORIZON FROM ' + data.start_date +
+          ' | TOTAL BUNDLES: ' + data.total_bundles +
+          ' | SCHEDULED: ' + data.scheduled_bundles;
+
+        const unschCount = data.unscheduled_bundle_ids.length;
+        summary.style.display = 'block';
+        let summaryHtml =
+          '<span style="color:#38bdf8;">HORIZON: </span>' + data.start_date +
+          ' &nbsp;·&nbsp; <span style="color:#4ade80;">SCHEDULED: </span>' +
+          data.scheduled_bundles + ' / ' + data.total_bundles + ' BUNDLES';
+        if (unschCount > 0) {
+          summaryHtml +=
+            ' &nbsp;·&nbsp; <span style="color:#facc15;">CARRYING FORWARD: </span>' +
+            unschCount + ' unscheduled — ' +
+            data.unscheduled_bundle_ids.map(id => '<span style="color:#facc15;">' + id + '</span>').join(', ');
+        } else {
+          summaryHtml += ' &nbsp;·&nbsp; <span style="color:#4ade80;">ALL BUNDLES SCHEDULED ✓</span>';
+        }
+        summary.innerHTML = summaryHtml;
+
+        let html = '';
+        (data.weeks || []).forEach(function (week, wi) {
+          html += '<div style="margin-bottom:18px;">';
+          html += '<div class="mono" style="color:#334455;font-size:0.6rem;letter-spacing:3px;' +
+            'border-bottom:1px solid #1e293b;padding-bottom:4px;margin-bottom:6px;">WEEK ' + (wi + 1) + '</div>';
+          html += '<table><thead><tr>' +
+            '<th>DATE</th><th>WEEKDAY</th><th>WINDOW</th><th>POSSESSION SPAN</th>' +
+            '<th>BUNDLES ASSIGNED</th><th>SOLVER STATUS</th></tr></thead><tbody>';
+
+          week.forEach(function (day) {
+            const statusColor =
+              day.solver_status === 'OPTIMAL'  ? '#4ade80' :
+              day.solver_status === 'FEASIBLE' ? '#facc15' :
+              day.solver_status === 'NO_WORK'  ? '#334455' : '#ef4444';
+
+            const winColor = day.window_color
+              || (day.window_label === 'EXTENDED_BLOCK' ? '#c084fc'
+                : day.window_label === 'MEGA_BLOCK' ? '#38bdf8' : '#64748b');
+            const bCount   = (day.assigned_bundle_ids || []).length;
+            const bTip     = bCount > 0 ? day.assigned_bundle_ids.join(', ') : '—';
+
+            html += '<tr>';
+            html += '<td class="mono" style="color:#e2e8f0;">' + day.date + '</td>';
+            html += '<td style="color:#94a3b8;">' + day.weekday + '</td>';
+            html += '<td><span class="mono tag" style="background:rgba(30,48,80,0.6);color:' + winColor + ';font-size:0.58rem;">' + day.window_label + '</span></td>';
+            html += '<td class="mono" style="color:#38bdf8;">' + day.window_start_hhmm + ' – ' + day.window_end_hhmm + '</td>';
+            html += '<td title="' + bTip + '" style="color:' + (bCount > 0 ? '#4ade80' : '#334455') + ';">' +
+              (bCount > 0 ? bCount + ' &nbsp;<span style="color:#64748b;font-size:0.6rem;">' + bTip + '</span>' : '—') + '</td>';
+            html += '<td><span class="mono" style="color:' + statusColor + ';font-size:0.62rem;letter-spacing:1px;">' + day.solver_status + '</span></td>';
+            html += '</tr>';
+
+            // Indent solved block windows
+            if (day.blocks && day.blocks.length > 0) {
+              day.blocks.forEach(function (blk) {
+                html += '<tr style="background:rgba(56,189,248,0.04);">';
+                html += '<td colspan="2" style="padding-left:22px;color:#334455;font-size:0.6rem;">└ BLOCK</td>';
+                html += '<td colspan="2" class="mono" style="color:#38bdf8;font-size:0.62rem;">' +
+                  blk.start_hhmm + ' → ' + blk.end_hhmm + '</td>';
+                html += '<td colspan="2" style="color:#64748b;font-size:0.6rem;">' + blk.bundle_id + '</td>';
+                html += '</tr>';
+              });
+            }
+          });
+
+          html += '</tbody></table></div>';
+        });
+
+        wrap.innerHTML = html;
+      } catch (err) {
+        loading.style.display = 'none';
+        wrap.innerHTML = '<div class="mono" style="color:#ef4444;font-size:0.72rem;padding:12px 0;">⚠ HORIZON PLAN ERROR: ' + err.message + '</div>';
+        console.error('loadHorizonPlan error:', err);
+      }
+    }
+
+    // Booting Sequence
+    window.addEventListener('load', () => {
+      renderTrainLegend();
+      const lineSelect = document.getElementById('ctrlLineSelect');
+      const sectorSelect = document.getElementById('ctrlSectionSelect');
+      if (lineSelect) {
+        lineSelect.addEventListener('change', () => {
+          runOptimizeFromControls()
+            .then((opt) => { if (opt) showToast("TARGET LINE UPDATED", "Solver re-optimized for " + lineSelect.value + " line."); })
+            .catch(() => showToast("API ERROR", "Could not re-optimize for the selected line."));
+        });
+      }
+      if (sectorSelect) {
+        sectorSelect.addEventListener('change', () => {
+          runOptimizeFromControls()
+            .then((opt) => { if (opt) showToast("CORRIDOR SECTOR UPDATED", "Solver re-optimized for " + sectorSelect.value + "."); })
+            .catch(() => showToast("API ERROR", "Could not re-optimize for the selected sector."));
+        });
+      }
+
+      loadMasterData().catch(err => {
+        console.warn("Backend not reached:", err);
+        showToast("BACKEND OFFLINE", "Start FastAPI at http://localhost:8000 to load live corridor data.");
+      });
+    });
+  </script>
+</body>
+</html>

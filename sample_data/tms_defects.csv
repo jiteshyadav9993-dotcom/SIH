@@ -1,0 +1,15 @@
+ASSET_ID,LINE_ID,CHAINAGE_KM,DEFECT_CODE,GRADE,DATE_REPORTED,DATE_DUE,TSR_FLAG,REMARKS
+RAIL-0453,2,15.200,RF,9,01-08-2026,15-08-2026,N,Transverse fissure detected during USFD test
+RAIL-0461,1,9.400,WF,7,05-08-2026,20-08-2026,N,Weld failure at rail joint near Dadar yard
+RAIL-0472,4,33.800,TR,5,10-08-2026,25-08-2026,N,Tamping required due to cess settlement
+RAIL-0489,6,67.500,WF,8,02-08-2026,12-08-2026,N,Weld failure identified during ground patrolling
+RAIL-0502,6,68.200,TR,4,15-08-2026,05-09-2026,N,Routine tamping entry logged by PWI
+RAIL-0518,6,102.300,RF,10,20-07-2026,10-08-2026,Y,Critical rail fracture with 25 km/h caution already imposed
+RAIL-0525,7,110.500,WF,6,25-08-2026,08-09-2026,N,Weld failure on ghat mid line near Jambrung
+RAIL-0533,5,121.500,WF,7,28-08-2026,10-09-2026,N,Weld failure detected near Khandala
+RAIL-0547,6,156.000,DS,6,01-07-2026,01-08-2026,N,Deep screening overdue on Pune plateau
+RAIL-0552,5,189.500,TR,3,10-09-2026,25-09-2026,N,Tamping scheduled near Shivajinagar
+RAIL-0999,9,45.000,RF,8,01-08-2026,15-08-2026,N,Bad row: LINE_ID 9 does not exist in the TMS code table
+RAIL-1002,2,250.000,WF,7,01-08-2026,15-08-2026,N,Bad row: chainage beyond the CSMT-Pune corridor end
+RAIL-1010,3,40.000,RF,15,01-08-2026,15-08-2026,N,Bad row: GRADE 15 is outside the legacy 1-10 scale
+RAIL-1020,2,,WF,6,01-08-2026,15-08-2026,N,Bad row: CHAINAGE_KM left blank

@@ -1,0 +1,9 @@
+ortools
+fastapi
+uvicorn
+python-multipart
+scikit-learn
+joblib
+pytest
+sqlalchemy
+psycopg2-binary

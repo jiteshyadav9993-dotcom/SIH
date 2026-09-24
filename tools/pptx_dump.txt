@@ -1,0 +1,576 @@
+FILE: c:\Users\JITESH\Downloads\SIH26027_Bug_Hunters_2.pptx
+Slide size: 13.33in x 7.50in
+Number of slides: 6
+Number of slide layouts in slide master: 11
+
+==========================================================================================
+SLIDE 1  layout='Blank'
+==========================================================================================
+    Shape id=3 name='Rectangle 2' type=AUTO_SHAPE (1) pos=(L0.83in,T0.23in) size=(W8.02in,H0.57in)
+      para0 level=0 text='SMART INDIA HACKATHON 2026'
+        run0[text='SMART INDIA HACKATHON 2026' font='Times New Roman' size=371475 bold=True color=203B63]
+    Shape id=4 name='Rectangle 3' type=AUTO_SHAPE (1) pos=(L0.83in,T0.79in) size=(W8.02in,H0.03in)
+    Shape id=5 name='Rectangle 4' type=AUTO_SHAPE (1) pos=(L3.80in,T1.17in) size=(W5.42in,H0.60in)
+      para0 level=0 text='TITLE PAGE'
+        run0[text='TITLE PAGE' font='Times New Roman' size=400050 bold=True color=111111]
+    Shape id=6 name='Rectangle 5' type=AUTO_SHAPE (1) pos=(L0.40in,T2.17in) size=(W0.29in,H0.42in)
+      para0 level=0 text='•'
+        run0[text='•' font='Times New Roman' size=276225 bold=False color=111111]
+    Shape id=7 name='Rectangle 6' type=AUTO_SHAPE (1) pos=(L0.71in,T2.17in) size=(W8.54in,H0.42in)
+      para0 level=0 text='Problem Statement ID – 26027'
+        run0[text='Problem Statement ID' font='Times New Roman' size=238125 bold=True color=111111]
+        run1[text=' – 26027' font='Times New Roman' size=238125 bold=False color=111111]
+    Shape id=8 name='Rectangle 7' type=AUTO_SHAPE (1) pos=(L0.40in,T2.71in) size=(W0.29in,H0.73in)
+      para0 level=0 text='•'
+        run0[text='•' font='Times New Roman' size=276225 bold=False color=111111]
+    Shape id=9 name='Rectangle 8' type=AUTO_SHAPE (1) pos=(L0.71in,T2.71in) size=(W8.54in,H0.73in)
+      para0 level=0 text='Problem Statement Title – AI-Powered Automatic Block Planning to Maximize Asset Availability for train operations on Indian Railways'
+        run0[text='Problem Statement Title' font='Times New Roman' size=238125 bold=True color=111111]
+        run1[text=' – AI-Powered Automatic Block Planning to Maximize Asset Availability' font='Times New Roman' size=238125 bold=False color=111111]
+        run2[text=' for train operations on Indian Railways' font='Times New Roman' size=238125 bold=False color=111111]
+    Shape id=10 name='Rectangle 9' type=AUTO_SHAPE (1) pos=(L0.40in,T3.58in) size=(W0.29in,H0.42in)
+      para0 level=0 text='•'
+        run0[text='•' font='Times New Roman' size=276225 bold=False color=111111]
+    Shape id=11 name='Rectangle 10' type=AUTO_SHAPE (1) pos=(L0.71in,T3.58in) size=(W8.54in,H0.42in)
+      para0 level=0 text='Theme – Transportation & Logistics'
+        run0[text='Theme' font='Times New Roman' size=238125 bold=True color=111111]
+        run1[text=' – Transportation' font='Times New Roman' size=238125 bold=False color=111111]
+        run2[text=' & Logistics' font='Times New Roman' size=238125 bold=False color=111111]
+    Shape id=12 name='Rectangle 11' type=AUTO_SHAPE (1) pos=(L0.40in,T4.11in) size=(W0.29in,H0.42in)
+      para0 level=0 text='•'
+        run0[text='•' font='Times New Roman' size=276225 bold=False color=111111]
+    Shape id=13 name='Rectangle 12' type=AUTO_SHAPE (1) pos=(L0.71in,T4.11in) size=(W8.54in,H0.42in)
+      para0 level=0 text='PS Category – Software'
+        run0[text='PS Category' font='Times New Roman' size=238125 bold=True color=111111]
+        run1[text=' – Software' font='Times New Roman' size=238125 bold=False color=111111]
+    Shape id=14 name='Rectangle 13' type=AUTO_SHAPE (1) pos=(L0.40in,T4.65in) size=(W0.29in,H0.42in)
+      para0 level=0 text='•'
+        run0[text='•' font='Times New Roman' size=276225 bold=False color=111111]
+    Shape id=15 name='Rectangle 14' type=AUTO_SHAPE (1) pos=(L0.71in,T4.65in) size=(W8.54in,H0.42in)
+      para0 level=0 text='Team ID – 162238'
+        run0[text='Team ID' font='Times New Roman' size=238125 bold=True color=111111]
+        run1[text=' – 162238' font='Times New Roman' size=238125 bold=False color=111111]
+    Shape id=16 name='Rectangle 15' type=AUTO_SHAPE (1) pos=(L0.40in,T5.18in) size=(W0.29in,H0.50in)
+      para0 level=0 text='•'
+        run0[text='•' font='Times New Roman' size=276225 bold=False color=111111]
+    Shape id=17 name='Rectangle 16' type=AUTO_SHAPE (1) pos=(L0.71in,T5.18in) size=(W8.54in,H0.50in)
+      para0 level=0 text='Team Name (Registered on Portal) – Bug_Hunters'
+        run0[text='Team Name (Registered on Portal)' font='Times New Roman' size=238125 bold=True color=111111]
+        run1[text=' – Bug_Hunters' font='Times New Roman' size=238125 bold=False color=111111]
+    Shape id=40 name='Picture 35' type=PICTURE (13) pos=(L10.86in,T0.15in) size=(W2.16in,H1.02in)
+      [PICTURE]
+    Shape id=22 name='Freeform: Shape 26' type=FREEFORM (5) pos=(L7.55in,T0.52in) size=(W5.07in,H5.64in)
+    Shape id=42 name='Picture 41' type=PICTURE (13) pos=(L9.06in,T2.14in) size=(W2.69in,H3.10in)
+      [PICTURE]
+
+==========================================================================================
+SLIDE 2  layout='Title Slide'
+==========================================================================================
+    Shape id=91 name='Picture 87' type=PICTURE (13) pos=(L11.15in,T0.10in) size=(W1.88in,H0.89in)
+      [PICTURE]
+    Shape id=37 name='Title 36' type=PLACEHOLDER (14) pos=(L2.04in,T0.17in) size=(W8.50in,H0.39in)
+      para0 level=0 text='IDEA TITLE'
+        run0[text='IDEA TITLE' font='Times New Roman' size=None bold=None color=None]
+      [PLACEHOLDER idx=0 type=CENTER_TITLE (3)]
+    Shape id=92 name='TextBox 91' type=TEXT_BOX (17) pos=(L0.54in,T0.60in) size=(W12.25in,H0.42in)
+      para0 level=0 text='The block-planning gap on a 192 km corridor — and how Bug_Hunters closes it'
+        run0[text='The block-planning gap on a 192 km corridor — and how Bug_Hunters closes it' font='Times New Roman' size=234950 bold=True color=203B63]
+    Shape id=93 name='TextBox 92' type=TEXT_BOX (17) pos=(L0.54in,T1.05in) size=(W12.25in,H0.30in)
+      para0 level=0 text='Problem → solution → root-cause fix → innovation, grounded in the official SIH-26027 brief and the working prototype.'
+        run0[text='Problem → solution → root-cause fix → innovation, grounded in the official SIH-26027 brief and the working prototype.' font='Times New Roman' size=146050 bold=False color=5C7190]
+    Shape id=94 name='Rectangle 93' type=AUTO_SHAPE (1) pos=(L0.54in,T1.41in) size=(W12.25in,H0.02in)
+    Shape id=95 name='Rounded Rectangle 94' type=AUTO_SHAPE (1) pos=(L0.54in,T1.56in) size=(W5.98in,H2.40in)
+    Shape id=96 name='TextBox 95' type=TEXT_BOX (17) pos=(L0.72in,T1.66in) size=(W5.62in,H0.24in)
+      para0 level=0 text='THE PROBLEM'
+        run0[text='THE PROBLEM' font='Times New Roman' size=146050 bold=True color=C9414B]
+    Shape id=97 name='TextBox 96' type=TEXT_BOX (17) pos=(L0.72in,T1.94in) size=(W5.62in,H0.55in)
+      para0 level=0 text='77%'
+        run0[text='77%' font='Times New Roman' size=381000 bold=True color=203B63]
+    Shape id=98 name='TextBox 97' type=TEXT_BOX (17) pos=(L2.09in,T2.00in) size=(W4.23in,H0.50in)
+      para0 level=0 text='Mail/Express punctuality, FY 2024-25 — Ministry of Railways, Lok Sabha reply (sansad.in). Down years earlier: 73.62% in 2023-24.'
+        run0[text='Mail/Express punctuality, FY 2024-25 — Ministry of Railways, Lok Sabha reply (sansad.in). Down years earlier: 73.62% in 2023-24.' font='Times New Roman' size=114300 bold=False color=5C7190]
+    Shape id=99 name='TextBox 98' type=TEXT_BOX (17) pos=(L0.72in,T2.54in) size=(W5.62in,H1.36in)
+      para0 level=0 text='▸ TMS, SMMS and TDMS keep their defect backlogs separately — no one screen shows all three.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=C9414B]
+        run1[text='TMS, SMMS and TDMS keep their defect backlogs separately — no one screen shows all three.' font='Times New Roman' size=127000 bold=False color=25364D]
+      para1 level=0 text='▸ Every department requests its block through BDMS on its own; nothing is co-planned.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=C9414B]
+        run1[text='Every department requests its block through BDMS on its own; nothing is co-planned.' font='Times New Roman' size=127000 bold=False color=25364D]
+      para2 level=0 text='▸ Official PS 26027 (Ministry of Railways): this “leads to inefficient block utilisation, poor coordination, and suboptimal scheduling.”'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=C9414B]
+        run1[text='Official PS 26027 (Ministry of Railways): this “leads to inefficient block utilisation, poor coordination, and suboptimal scheduling.”' font='Times New Roman' size=127000 bold=False color=25364D]
+    Shape id=100 name='Rounded Rectangle 99' type=AUTO_SHAPE (1) pos=(L6.81in,T1.56in) size=(W5.98in,H2.40in)
+    Shape id=101 name='TextBox 100' type=TEXT_BOX (17) pos=(L6.99in,T1.66in) size=(W5.62in,H0.24in)
+      para0 level=0 text='THE PROPOSED SOLUTION'
+        run0[text='THE PROPOSED SOLUTION' font='Times New Roman' size=146050 bold=True color=0079C8]
+    Shape id=102 name='TextBox 101' type=TEXT_BOX (17) pos=(L6.99in,T1.94in) size=(W5.62in,H0.42in)
+      para0 level=0 text='One CP-SAT engine turns 3 siloed maintenance feeds into a single, conflict-checked block plan.'
+        run0[text='One CP-SAT engine turns 3 siloed maintenance feeds into a single, conflict-checked block plan.' font='Times New Roman' size=134620 bold=True color=203B63]
+    Shape id=103 name='TextBox 102' type=TEXT_BOX (17) pos=(L6.99in,T2.42in) size=(W5.62in,H1.48in)
+      para0 level=0 text='1  Unify — TMS + SMMS + TDMS + COA + WTT read into one repository.'
+        run0[text='1  ' font='Times New Roman' size=130810 bold=True color=0079C8]
+        run1[text='Unify — ' font='Times New Roman' size=130810 bold=True color=203B63]
+        run2[text='TMS + SMMS + TDMS + COA + WTT read into one repository.' font='Times New Roman' size=127000 bold=False color=25364D]
+      para1 level=0 text='2  Rank — Formula 1 scores every defect 0–100 on severity, overdue days, TSR, traffic.'
+        run0[text='2  ' font='Times New Roman' size=130810 bold=True color=0079C8]
+        run1[text='Rank — ' font='Times New Roman' size=130810 bold=True color=203B63]
+        run2[text='Formula 1 scores every defect 0–100 on severity, overdue days, TSR, traffic.' font='Times New Roman' size=127000 bold=False color=25364D]
+      para2 level=0 text='3  Bundle — Formula 2 groups same-line work within 3 km into one possession.'
+        run0[text='3  ' font='Times New Roman' size=130810 bold=True color=0079C8]
+        run1[text='Bundle — ' font='Times New Roman' size=130810 bold=True color=203B63]
+        run2[text='Formula 2 groups same-line work within 3 km into one possession.' font='Times New Roman' size=127000 bold=False color=25364D]
+      para3 level=0 text='4  Solve — Google OR-Tools CP-SAT proves a conflict-free window — or reports why not.'
+        run0[text='4  ' font='Times New Roman' size=130810 bold=True color=0079C8]
+        run1[text='Solve — ' font='Times New Roman' size=130810 bold=True color=203B63]
+        run2[text='Google OR-Tools CP-SAT proves a conflict-free window — or reports why not.' font='Times New Roman' size=127000 bold=False color=25364D]
+    Shape id=104 name='Rounded Rectangle 103' type=AUTO_SHAPE (1) pos=(L0.54in,T4.06in) size=(W5.98in,H2.40in)
+    Shape id=105 name='TextBox 104' type=TEXT_BOX (17) pos=(L0.72in,T4.16in) size=(W5.62in,H0.24in)
+      para0 level=0 text='HOW IT ADDRESSES THE PROBLEM'
+        run0[text='HOW IT ADDRESSES THE PROBLEM' font='Times New Roman' size=146050 bold=True color=0C9A62]
+    Shape id=106 name='TextBox 105' type=TEXT_BOX (17) pos=(L0.72in,T4.46in) size=(W5.62in,H1.92in)
+      para0 level=0 text='▸ Split systems  →  TMS + SMMS + TDMS + WTT merged into one repository (app.py adapter layer).'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=0C9A62]
+        run1[text='Split systems' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='  →  ' font='Times New Roman' size=127000 bold=True color=5C7190]
+        run3[text='TMS + SMMS + TDMS + WTT merged into one repository (app.py adapter layer).' font='Times New Roman' size=123063 bold=False color=25364D]
+      para1 level=0 text='▸ No shared ranking  →  Formula 1 gives every defect the same 0–100 urgency score, regardless of source.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=0C9A62]
+        run1[text='No shared ranking' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='  →  ' font='Times New Roman' size=127000 bold=True color=5C7190]
+        run3[text='Formula 1 gives every defect the same 0–100 urgency score, regardless of source.' font='Times New Roman' size=123063 bold=False color=25364D]
+      para2 level=0 text='▸ Manual conflict-checking  →  CP-SAT proves zero train / block / machine conflict before a human ever signs off.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=0C9A62]
+        run1[text='Manual conflict-checking' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='  →  ' font='Times New Roman' size=127000 bold=True color=5C7190]
+        run3[text='CP-SAT proves zero train / block / machine conflict before a human ever signs off.' font='Times New Roman' size=123063 bold=False color=25364D]
+      para3 level=0 text='▸ One-shot decisions  →  Weekly + monthly rolling horizon re-ranks unscheduled work automatically, never dropped.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=0C9A62]
+        run1[text='One-shot decisions' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='  →  ' font='Times New Roman' size=127000 bold=True color=5C7190]
+        run3[text='Weekly + monthly rolling horizon re-ranks unscheduled work automatically, never dropped.' font='Times New Roman' size=123063 bold=False color=25364D]
+    Shape id=107 name='Rounded Rectangle 106' type=AUTO_SHAPE (1) pos=(L6.81in,T4.06in) size=(W5.98in,H2.40in)
+    Shape id=108 name='TextBox 107' type=TEXT_BOX (17) pos=(L6.99in,T4.16in) size=(W5.62in,H0.24in)
+      para0 level=0 text='INNOVATION & UNIQUENESS'
+        run0[text='INNOVATION & UNIQUENESS' font='Times New Roman' size=146050 bold=True color=7657C7]
+    Shape id=109 name='TextBox 108' type=TEXT_BOX (17) pos=(L6.99in,T4.46in) size=(W5.62in,H1.92in)
+      para0 level=0 text='▸ Two-formula math, not a heuristic. Priority Urgency + Spatial Bundling feed the CP-SAT objective directly.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=7657C7]
+        run1[text='Two-formula math, not a heuristic. ' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='Priority Urgency + Spatial Bundling feed the CP-SAT objective directly.' font='Times New Roman' size=123063 bold=False color=25364D]
+      para1 level=0 text='▸ Three policies solved every time. Punctuality-First / Asset-First / Mega-Block compared side-by-side — never one black-box answer.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=7657C7]
+        run1[text='Three policies solved every time. ' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='Punctuality-First / Asset-First / Mega-Block compared side-by-side — never one black-box answer.' font='Times New Roman' size=123063 bold=False color=25364D]
+      para2 level=0 text='▸ ML sees defects getting worse. GradientBoostingRegressor forecasts days-to-critical (R² = 0.98 on matched hold-out).'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=7657C7]
+        run1[text='ML sees defects getting worse. ' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='GradientBoostingRegressor forecasts days-to-critical (R² = 0.98 on matched hold-out).' font='Times New Roman' size=123063 bold=False color=25364D]
+      para3 level=0 text='▸ Plans like the Railway already does. 7-day and 28-day rolling horizon mirrors the Railway Board’s own Rolling Block Plan.'
+        run0[text='▸ ' font='Times New Roman' size=127000 bold=True color=7657C7]
+        run1[text='Plans like the Railway already does. ' font='Times New Roman' size=127000 bold=True color=203B63]
+        run2[text='7-day and 28-day rolling horizon mirrors the Railway Board’s own Rolling Block Plan.' font='Times New Roman' size=123063 bold=False color=25364D]
+    Shape id=110 name='Rectangle 109' type=AUTO_SHAPE (1) pos=(L0.54in,T6.96in) size=(W12.25in,H0.02in)
+    Shape id=111 name='TextBox 110' type=TEXT_BOX (17) pos=(L0.54in,T7.02in) size=(W6.46in,H0.25in)
+      para0 level=0 text='BUG_HUNTERS  •  SIH 26027'
+        run0[text='BUG_HUNTERS  •  SIH 26027' font='Times New Roman' size=123825 bold=False color=5C7190]
+    Shape id=112 name='TextBox 111' type=TEXT_BOX (17) pos=(L9.69in,T7.02in) size=(W3.10in,H0.25in)
+      para0 level=0 text='SIH 2026  •  Slide 2 of 6'
+        run0[text='SIH 2026  •  Slide 2 of 6' font='Times New Roman' size=123825 bold=False color=5C7190]
+
+==========================================================================================
+SLIDE 3  layout='Title Only'
+==========================================================================================
+    Shape id=109 name='Picture 105' type=PICTURE (13) pos=(L11.15in,T0.10in) size=(W1.88in,H0.89in)
+      [PICTURE]
+    Shape id=36 name='Title 35' type=PLACEHOLDER (14) pos=(L2.69in,T-0.51in) size=(W7.00in,H1.64in)
+      para0 level=0 text='TECHNICAL APPROACH'
+        run0[text='TECHNICAL APPROACH' font='Times New Roman' size=457200 bold=None color=None]
+      [PLACEHOLDER idx=0 type=TITLE (1)]
+    Shape id=110 name='TextBox 109' type=TEXT_BOX (17) pos=(L0.54in,T0.60in) size=(W12.25in,H0.42in)
+      para0 level=0 text='Python + Google OR-Tools CP-SAT, served by FastAPI, watched on a live VDU console'
+        run0[text='Python + Google OR-Tools CP-SAT, served by FastAPI, watched on a live VDU console' font='Times New Roman' size=234950 bold=True color=203B63]
+    Shape id=111 name='TextBox 110' type=TEXT_BOX (17) pos=(L0.54in,T1.05in) size=(W12.25in,H0.30in)
+      para0 level=0 text='Every item below is running in the attached prototype today — picked for a stated reason, shown as a real flow, not a logo wall.'
+        run0[text='Every item below is running in the attached prototype today — picked for a stated reason, shown as a real flow, not a logo wall.' font='Times New Roman' size=146050 bold=False color=5C7190]
+    Shape id=112 name='Rectangle 111' type=AUTO_SHAPE (1) pos=(L0.54in,T1.41in) size=(W12.25in,H0.02in)
+    Shape id=113 name='Rounded Rectangle 112' type=AUTO_SHAPE (1) pos=(L0.54in,T1.56in) size=(W2.32in,H1.50in)
+    Shape id=114 name='Rectangle 113' type=AUTO_SHAPE (1) pos=(L0.54in,T1.56in) size=(W2.32in,H0.07in)
+    Shape id=115 name='TextBox 114' type=TEXT_BOX (17) pos=(L0.67in,T1.69in) size=(W2.06in,H1.28in)
+      para0 level=0 text='LANGUAGE & SOLVER'
+        run0[text='LANGUAGE & SOLVER' font='Times New Roman' size=110363 bold=True color=0079C8]
+      para1 level=0 text='Python 3.14 + Google OR-Tools CP-SAT'
+        run0[text='Python 3.14 + Google OR-Tools CP-SAT' font='Times New Roman' size=130810 bold=True color=203B63]
+      para2 level=0 text='Typed end-to-end; CP-SAT proves a feasible plan instead of approximating one.'
+        run0[text='Typed end-to-end; CP-SAT proves a feasible plan instead of approximating one.' font='Times New Roman' size=110363 bold=False color=5C7190]
+    Shape id=116 name='Rounded Rectangle 115' type=AUTO_SHAPE (1) pos=(L3.00in,T1.56in) size=(W2.32in,H1.50in)
+    Shape id=117 name='Rectangle 116' type=AUTO_SHAPE (1) pos=(L3.00in,T1.56in) size=(W2.32in,H0.07in)
+    Shape id=118 name='TextBox 117' type=TEXT_BOX (17) pos=(L3.13in,T1.69in) size=(W2.06in,H1.28in)
+      para0 level=0 text='BACKEND API'
+        run0[text='BACKEND API' font='Times New Roman' size=110363 bold=True color=0C9A62]
+      para1 level=0 text='FastAPI + Uvicorn'
+        run0[text='FastAPI + Uvicorn' font='Times New Roman' size=130810 bold=True color=203B63]
+      para2 level=0 text='Async ASGI service; 11 REST routes, OpenAPI docs generated for free.'
+        run0[text='Async ASGI service; 11 REST routes, OpenAPI docs generated for free.' font='Times New Roman' size=110363 bold=False color=5C7190]
+    Shape id=119 name='Rounded Rectangle 118' type=AUTO_SHAPE (1) pos=(L5.47in,T1.56in) size=(W2.32in,H1.50in)
+    Shape id=120 name='Rectangle 119' type=AUTO_SHAPE (1) pos=(L5.47in,T1.56in) size=(W2.32in,H0.07in)
+    Shape id=121 name='TextBox 120' type=TEXT_BOX (17) pos=(L5.60in,T1.69in) size=(W2.06in,H1.28in)
+      para0 level=0 text='MACHINE LEARNING'
+        run0[text='MACHINE LEARNING' font='Times New Roman' size=110363 bold=True color=7657C7]
+      para1 level=0 text='scikit-learn (Gradient Boosting) + joblib'
+        run0[text='scikit-learn (Gradient Boosting) + joblib' font='Times New Roman' size=130810 bold=True color=203B63]
+      para2 level=0 text='Forecasts days-to-critical; the model is cached, never retrained on the request path.'
+        run0[text='Forecasts days-to-critical; the model is cached, never retrained on the request path.' font='Times New Roman' size=110363 bold=False color=5C7190]
+    Shape id=122 name='Rounded Rectangle 121' type=AUTO_SHAPE (1) pos=(L7.93in,T1.56in) size=(W2.32in,H1.50in)
+    Shape id=123 name='Rectangle 122' type=AUTO_SHAPE (1) pos=(L7.93in,T1.56in) size=(W2.32in,H0.07in)
+    Shape id=124 name='TextBox 123' type=TEXT_BOX (17) pos=(L8.06in,T1.69in) size=(W2.06in,H1.28in)
+      para0 level=0 text='AUDIT & DATA'
+        run0[text='AUDIT & DATA' font='Times New Roman' size=110363 bold=True color=D99200]
+      para1 level=0 text='SQLAlchemy ORM → SQLite / PostgreSQL'
+        run0[text='SQLAlchemy ORM → SQLite / PostgreSQL' font='Times New Roman' size=130810 bold=True color=203B63]
+      para2 level=0 text='Every sanction, shift and rejection is a signed audit row, not a log line.'
+        run0[text='Every sanction, shift and rejection is a signed audit row, not a log line.' font='Times New Roman' size=110363 bold=False color=5C7190]
+    Shape id=125 name='Rounded Rectangle 124' type=AUTO_SHAPE (1) pos=(L10.40in,T1.56in) size=(W2.32in,H1.50in)
+    Shape id=126 name='Rectangle 125' type=AUTO_SHAPE (1) pos=(L10.40in,T1.56in) size=(W2.32in,H0.07in)
+    Shape id=127 name='TextBox 126' type=TEXT_BOX (17) pos=(L10.53in,T1.69in) size=(W2.06in,H1.28in)
+      para0 level=0 text='VDU CONSOLE'
+        run0[text='VDU CONSOLE' font='Times New Roman' size=110363 bold=True color=C9414B]
+      para1 level=0 text='HTML5, CSS3, JavaScript, Leaflet.js, SVG'
+        run0[text='HTML5, CSS3, JavaScript, Leaflet.js, SVG' font='Times New Roman' size=130810 bold=True color=203B63]
+      para2 level=0 text='Dark CRIS-style console: live GIS map plus a hand-built schematic of the real crossovers.'
+        run0[text='Dark CRIS-style console: live GIS map plus a hand-built schematic of the real crossovers.' font='Times New Roman' size=110363 bold=False color=5C7190]
+    Shape id=128 name='Pentagon 127' type=AUTO_SHAPE (1) pos=(L0.54in,T3.22in) size=(W2.62in,H1.42in)
+      para0 level=0 text='SOURCES'
+        run0[text='SOURCES' font='Times New Roman' size=158750 bold=True color=FFFFFF]
+      para1 level=0 text='TMS · SMMS · TDMS · COA · WTT — 5 feeds, 1 read'
+        run0[text='TMS · SMMS · TDMS · COA · WTT — 5 feeds, 1 read' font='Times New Roman' size=105410 bold=False color=D7E4F5]
+    Shape id=129 name='Pentagon 128' type=AUTO_SHAPE (1) pos=(L2.96in,T3.22in) size=(W2.62in,H1.42in)
+      para0 level=0 text='VALIDATE'
+        run0[text='VALIDATE' font='Times New Roman' size=158750 bold=True color=FFFFFF]
+      para1 level=0 text='Row-level parse; bad rows rejected with a reason, not the file'
+        run0[text='Row-level parse; bad rows rejected with a reason, not the file' font='Times New Roman' size=105410 bold=False color=D7E4F5]
+    Shape id=130 name='Pentagon 129' type=AUTO_SHAPE (1) pos=(L5.38in,T3.22in) size=(W2.62in,H1.42in)
+      para0 level=0 text='RANK'
+        run0[text='RANK' font='Times New Roman' size=158750 bold=True color=FFFFFF]
+      para1 level=0 text='Formula 1 urgency (0–100) + ML days-to-critical'
+        run0[text='Formula 1 urgency (0–100) + ML days-to-critical' font='Times New Roman' size=105410 bold=False color=D7E4F5]
+    Shape id=131 name='Pentagon 130' type=AUTO_SHAPE (1) pos=(L7.80in,T3.22in) size=(W2.62in,H1.42in)
+      para0 level=0 text='BUNDLE'
+        run0[text='BUNDLE' font='Times New Roman' size=158750 bold=True color=FFFFFF]
+      para1 level=0 text='Formula 2: ≤ 3 km, same line & feeder ⇒ one possession'
+        run0[text='Formula 2: ≤ 3 km, same line & feeder ⇒ one possession' font='Times New Roman' size=105410 bold=False color=D7E4F5]
+    Shape id=132 name='Pentagon 131' type=AUTO_SHAPE (1) pos=(L10.22in,T3.22in) size=(W2.62in,H1.42in)
+      para0 level=0 text='SOLVE'
+        run0[text='SOLVE' font='Times New Roman' size=158750 bold=True color=FFFFFF]
+      para1 level=0 text='CP-SAT proves Rule A / B / C, pooling & power isolation'
+        run0[text='CP-SAT proves Rule A / B / C, pooling & power isolation' font='Times New Roman' size=105410 bold=False color=D7E4F5]
+    Shape id=133 name='Picture 132' type=PICTURE (13) pos=(L0.54in,T4.98in) size=(W3.95in,H1.42in)
+      [PICTURE]
+    Shape id=134 name='Rectangle 133' type=AUTO_SHAPE (1) pos=(L0.54in,T4.98in) size=(W3.95in,H1.42in)
+    Shape id=135 name='TextBox 134' type=TEXT_BOX (17) pos=(L0.54in,T6.44in) size=(W3.95in,H0.30in)
+      para0 level=0 text='Live VDU console — GIS map + SVG track schematic + real-time train telemetry (screenshot of the running prototype).'
+        run0[text='Live VDU console — GIS map + SVG track schematic + real-time train telemetry (screenshot of the running prototype).' font='Times New Roman' size=105410 bold=False color=5C7190]
+    Shape id=136 name='Rounded Rectangle 135' type=AUTO_SHAPE (1) pos=(L4.77in,T4.98in) size=(W8.02in,H0.66in)
+    Shape id=137 name='TextBox 136' type=TEXT_BOX (17) pos=(L4.93in,T5.06in) size=(W7.70in,H0.50in)
+      para0 level=0 text='📁  GITHUB REPOSITORY'
+        run0[text='📁  GITHUB REPOSITORY' font='Times New Roman' size=133350 bold=True color=0079C8]
+      para1 level=0 text='Paste your repository link here before the final SIH portal upload →  https://github.com/<your-org>/<repo>'
+        run0[text='Paste your repository link here before the final SIH portal upload →  https://github.com/<your-org>/<repo>' font='Times New Roman' size=118110 bold=False color=5C7190]
+    Shape id=138 name='Rounded Rectangle 137' type=AUTO_SHAPE (1) pos=(L4.77in,T5.78in) size=(W8.02in,H0.66in)
+    Shape id=139 name='TextBox 138' type=TEXT_BOX (17) pos=(L4.93in,T5.86in) size=(W7.70in,H0.50in)
+      para0 level=0 text='▶  DEMO VIDEO (YOUTUBE)'
+        run0[text='▶  DEMO VIDEO (YOUTUBE)' font='Times New Roman' size=133350 bold=True color=0C9A62]
+      para1 level=0 text='Paste your unlisted / public walkthrough link here →  https://youtu.be/<video-id>'
+        run0[text='Paste your unlisted / public walkthrough link here →  https://youtu.be/<video-id>' font='Times New Roman' size=118110 bold=False color=5C7190]
+    Shape id=140 name='TextBox 139' type=TEXT_BOX (17) pos=(L4.77in,T6.47in) size=(W8.02in,H0.20in)
+      para0 level=0 text='Both links are opened directly by SIH evaluators — keep them public or unlisted, never private.'
+        run0[text='Both links are opened directly by SIH evaluators — keep them public or unlisted, never private.' font='Times New Roman' size=104013 bold=False color=5C7190]
+    Shape id=141 name='Rectangle 140' type=AUTO_SHAPE (1) pos=(L0.54in,T6.96in) size=(W12.25in,H0.02in)
+    Shape id=142 name='TextBox 141' type=TEXT_BOX (17) pos=(L0.54in,T7.02in) size=(W6.46in,H0.25in)
+      para0 level=0 text='BUG_HUNTERS  •  SIH 26027'
+        run0[text='BUG_HUNTERS  •  SIH 26027' font='Times New Roman' size=123825 bold=False color=5C7190]
+    Shape id=143 name='TextBox 142' type=TEXT_BOX (17) pos=(L9.69in,T7.02in) size=(W3.10in,H0.25in)
+      para0 level=0 text='SIH 2026  •  Slide 3 of 6'
+        run0[text='SIH 2026  •  Slide 3 of 6' font='Times New Roman' size=123825 bold=False color=5C7190]
+
+==========================================================================================
+SLIDE 4  layout='Blank'
+==========================================================================================
+    Shape id=89 name='Picture 85' type=PICTURE (13) pos=(L11.15in,T0.10in) size=(W1.88in,H0.89in)
+      [PICTURE]
+    Shape id=43 name='TextBox 42' type=TEXT_BOX (17) pos=(L3.33in,T-0.05in) size=(W7.51in,H0.71in)
+      para0 level=0 text='FEASIBILITY AND VIABILITY'
+        run0[text='FEASIBILITY AND VIABILITY' font='Times New Roman' size=457200 bold=None color=None]
+    Shape id=90 name='TextBox 89' type=TEXT_BOX (17) pos=(L0.54in,T0.60in) size=(W12.25in,H0.42in)
+      para0 level=0 text='Feasible inside today’s block calendar — three real risks, three concrete mitigations'
+        run0[text='Feasible inside today’s block calendar — three real risks, three concrete mitigations' font='Times New Roman' size=234950 bold=True color=203B63]
+    Shape id=91 name='TextBox 90' type=TEXT_BOX (17) pos=(L0.54in,T1.05in) size=(W12.25in,H0.30in)
+      para0 level=0 text='Technical and operational feasibility argued from the corridor model itself, then tested against real failure modes.'
+        run0[text='Technical and operational feasibility argued from the corridor model itself, then tested against real failure modes.' font='Times New Roman' size=146050 bold=False color=5C7190]
+    Shape id=92 name='Rectangle 91' type=AUTO_SHAPE (1) pos=(L0.54in,T1.41in) size=(W12.25in,H0.02in)
+    Shape id=93 name='Rounded Rectangle 92' type=AUTO_SHAPE (1) pos=(L0.54in,T1.56in) size=(W5.98in,H1.86in)
+    Shape id=94 name='TextBox 93' type=TEXT_BOX (17) pos=(L0.72in,T1.65in) size=(W5.62in,H0.24in)
+      para0 level=0 text='TECHNICAL FEASIBILITY'
+        run0[text='TECHNICAL FEASIBILITY' font='Times New Roman' size=146050 bold=True color=0079C8]
+    Shape id=95 name='TextBox 94' type=TEXT_BOX (17) pos=(L0.72in,T1.93in) size=(W5.62in,H0.42in)
+      para0 level=0 text='The corridor, the rules and the fleet are already modelled in code — not slideware.'
+        run0[text='The corridor, the rules and the fleet are already modelled in code — not slideware.' font='Times New Roman' size=121920 bold=True color=203B63]
+    Shape id=96 name='Rounded Rectangle 95' type=AUTO_SHAPE (1) pos=(L0.72in,T2.42in) size=(W2.78in,H0.62in)
+    Shape id=97 name='TextBox 96' type=TEXT_BOX (17) pos=(L0.82in,T2.47in) size=(W2.58in,H0.52in)
+      para0 level=0 text='192 km'
+        run0[text='192 km' font='Times New Roman' size=184150 bold=True color=0079C8]
+      para1 level=0 text='corridor modelled'
+        run0[text='corridor modelled' font='Times New Roman' size=106680 bold=False color=5C7190]
+    Shape id=98 name='Rounded Rectangle 97' type=AUTO_SHAPE (1) pos=(L3.62in,T2.42in) size=(W2.78in,H0.62in)
+    Shape id=99 name='TextBox 98' type=TEXT_BOX (17) pos=(L3.72in,T2.47in) size=(W2.58in,H0.52in)
+      para0 level=0 text='3 rules'
+        run0[text='3 rules' font='Times New Roman' size=184150 bold=True color=0079C8]
+      para1 level=0 text='Rule A·B·C in CP-SAT'
+        run0[text='Rule A·B·C in CP-SAT' font='Times New Roman' size=106680 bold=False color=5C7190]
+    Shape id=100 name='Rounded Rectangle 99' type=AUTO_SHAPE (1) pos=(L0.72in,T3.16in) size=(W2.78in,H0.62in)
+    Shape id=101 name='TextBox 100' type=TEXT_BOX (17) pos=(L0.82in,T3.21in) size=(W2.58in,H0.52in)
+      para0 level=0 text='18 tests'
+        run0[text='18 tests' font='Times New Roman' size=184150 bold=True color=0079C8]
+      para1 level=0 text='pytest, 3 suites'
+        run0[text='pytest, 3 suites' font='Times New Roman' size=106680 bold=False color=5C7190]
+    Shape id=102 name='Rounded Rectangle 101' type=AUTO_SHAPE (1) pos=(L3.62in,T3.16in) size=(W2.78in,H0.62in)
+    Shape id=103 name='TextBox 102' type=TEXT_BOX (17) pos=(L3.72in,T3.21in) size=(W2.58in,H0.52in)
+      para0 level=0 text='170 trains'
+        run0[text='170 trains' font='Times New Roman' size=184150 bold=True color=0079C8]
+      para1 level=0 text='full 24 h WTT'
+        run0[text='full 24 h WTT' font='Times New Roman' size=106680 bold=False color=5C7190]
+    Shape id=104 name='Rounded Rectangle 103' type=AUTO_SHAPE (1) pos=(L6.81in,T1.56in) size=(W5.98in,H1.86in)
+    Shape id=105 name='TextBox 104' type=TEXT_BOX (17) pos=(L6.99in,T1.65in) size=(W5.62in,H0.24in)
+      para0 level=0 text='OPERATIONAL FEASIBILITY'
+        run0[text='OPERATIONAL FEASIBILITY' font='Times New Roman' size=146050 bold=True color=0C9A62]
+    Shape id=106 name='TextBox 105' type=TEXT_BOX (17) pos=(L6.99in,T1.93in) size=(W5.62in,H1.42in)
+      para0 level=0 text='Fits the block windows Central Railway already uses: nightly 00:00–04:00, Sunday 00:00–07:00 mega-block, or a 12-hour extended block — the same vocabulary as the Railway Board’s own Rolling Block Plan.'
+        run0[text='Fits the block windows Central Railway already uses' font='Times New Roman' size=121920 bold=True color=203B63]
+        run1[text=': nightly 00:00–04:00, Sunday 00:00–07:00 mega-block, or a 12-hour extended block — the same vocabulary as the Railway Board’s own Rolling Block Plan.' font='Times New Roman' size=121920 bold=False color=25364D]
+      para1 level=0 text='Verified on a live 7-day run: 10 of 14 backlog defects (71%) cleared in week 1, including one automatic mandatory-bundle split. The remaining 4 lower-urgency defects carry forward with rising urgency — never forced into an unsafe window.'
+        run0[text='Verified on a live 7-day run: ' font='Times New Roman' size=121920 bold=True color=0C9A62]
+        run1[text='10 of 14 backlog defects (71%) cleared in week 1, including one automatic mandatory-bundle split. The remaining 4 lower-urgency defects carry forward with rising urgency — never forced into an unsafe window.' font='Times New Roman' size=121920 bold=False color=25364D]
+    Shape id=107 name='Table 106' type=TABLE (19) pos=(L0.54in,T3.58in) size=(W12.25in,H2.97in)
+      [TABLE rows=6 cols=3]
+        row0: ['RISK', 'WHY IT CAN HAPPEN', 'MITIGATION ALREADY IN THE CODE']
+        row1: ['Zero-tolerance passenger clash', 'Premium / Superfast carry 0-minute patience (Rule B); a tight nightly window can have no legal gap left.', 'Solver reports INFEASIBLE rather than forcing a delay; calendar_plan.py rolls the job to the next feasible day — verified: cleared on the following Sunday mega-block in our own test run.']
+        row2: ['Scarce machine fleet', 'Division-wide there is only 1 BCM machine, 2 tie-tampers and 2 tower wagons.', 'AddCumulative in solver.py caps concurrent bundles per machine type — double-booking is impossible, not just discouraged.']
+        row3: ['Oversized safety-critical bundle', 'A mandatory cluster’s envelope can exceed even the 420-minute Sunday mega-block.', 'calendar_plan.py auto-splits it into single-defect bundles and retries before the day is ever given up on.']
+        row4: ['Legacy schema drift (TMS/SMMS/TDMS)', 'Three real systems use three different column names, date formats and severity scales.', 'Per-source parsers in data_ingestion.py normalise each feed; one bad row is rejected with a reason — the rest of the file still loads.']
+        row5: ['Live integration not switched on yet', 'The prototype runs on a locally-encoded demo backlog, not a production feed.', 'Ingestion layer already speaks TMS/SMMS/TDMS/COA’s real export formats; go-live needs only an approved read endpoint, validated in a shadow-mode pilot first.']
+    Shape id=108 name='Rectangle 107' type=AUTO_SHAPE (1) pos=(L0.54in,T6.96in) size=(W12.25in,H0.02in)
+    Shape id=109 name='TextBox 108' type=TEXT_BOX (17) pos=(L0.54in,T7.02in) size=(W6.46in,H0.25in)
+      para0 level=0 text='BUG_HUNTERS  •  SIH 26027'
+        run0[text='BUG_HUNTERS  •  SIH 26027' font='Times New Roman' size=123825 bold=False color=5C7190]
+    Shape id=110 name='TextBox 109' type=TEXT_BOX (17) pos=(L9.69in,T7.02in) size=(W3.10in,H0.25in)
+      para0 level=0 text='SIH 2026  •  Slide 4 of 6'
+        run0[text='SIH 2026  •  Slide 4 of 6' font='Times New Roman' size=123825 bold=False color=5C7190]
+
+==========================================================================================
+SLIDE 5  layout='Blank'
+==========================================================================================
+    Shape id=57 name='Picture 53' type=PICTURE (13) pos=(L11.15in,T0.10in) size=(W1.88in,H0.89in)
+      [PICTURE]
+    Shape id=27 name='TextBox 26' type=TEXT_BOX (17) pos=(L3.40in,T-0.06in) size=(W8.66in,H0.71in)
+      para0 level=0 text='IMPACT AND BENEFITS'
+        run0[text='IMPACT AND BENEFITS' font='Times New Roman' size=457200 bold=None color=None]
+    Shape id=58 name='TextBox 57' type=TEXT_BOX (17) pos=(L0.54in,T0.60in) size=(W12.25in,H0.42in)
+      para0 level=0 text='Built around the two people who run a block — not a generic persona slide'
+        run0[text='Built around the two people who run a block — not a generic persona slide' font='Times New Roman' size=234950 bold=True color=203B63]
+    Shape id=59 name='TextBox 58' type=TEXT_BOX (17) pos=(L0.54in,T1.05in) size=(W12.25in,H0.30in)
+      para0 level=0 text='Impact shown on the real Officer and Controller consoles already in the prototype; benefits quantified from the same defect backlog.'
+        run0[text='Impact shown on the real Officer and Controller consoles already in the prototype; benefits quantified from the same defect backlog.' font='Times New Roman' size=146050 bold=False color=5C7190]
+    Shape id=60 name='Rectangle 59' type=AUTO_SHAPE (1) pos=(L0.54in,T1.41in) size=(W12.25in,H0.02in)
+    Shape id=61 name='Rounded Rectangle 60' type=AUTO_SHAPE (1) pos=(L0.54in,T1.56in) size=(W5.98in,H2.66in)
+    Shape id=62 name='TextBox 61' type=TEXT_BOX (17) pos=(L0.72in,T1.65in) size=(W5.62in,H0.24in)
+      para0 level=0 text='BLOCK MAINTENANCE OFFICER · ASSET CONSOLE'
+        run0[text='BLOCK MAINTENANCE OFFICER · ASSET CONSOLE' font='Times New Roman' size=137160 bold=True color=0079C8]
+    Shape id=63 name='Picture 62' type=PICTURE (13) pos=(L1.75in,T1.92in) size=(W3.56in,H1.28in)
+      [PICTURE]
+    Shape id=64 name='Rectangle 63' type=AUTO_SHAPE (1) pos=(L1.75in,T1.92in) size=(W3.56in,H1.28in)
+    Shape id=65 name='TextBox 64' type=TEXT_BOX (17) pos=(L0.72in,T3.26in) size=(W5.62in,H0.92in)
+      para0 level=0 text='▸ Sees all 14 TMS / TDMS / SMMS defects ranked by Formula 1 urgency (0–100) on one screen instead of three logins.'
+        run0[text='▸ ' font='Times New Roman' size=116205 bold=True color=0079C8]
+        run1[text='Sees all 14 TMS / TDMS / SMMS defects ranked by Formula 1 urgency (0–100) on one screen instead of three logins.' font='Times New Roman' size=116205 bold=False color=25364D]
+      para1 level=0 text='▸ The ML “days-to-critical” column flags an escalating fault before it becomes an emergency block.'
+        run0[text='▸ ' font='Times New Roman' size=116205 bold=True color=0079C8]
+        run1[text='The ML “days-to-critical” column flags an escalating fault before it becomes an emergency block.' font='Times New Roman' size=116205 bold=False color=25364D]
+      para2 level=0 text='▸ One button — Transmit Request — replaces a phone / e-mail chain across three departments.'
+        run0[text='▸ ' font='Times New Roman' size=116205 bold=True color=0079C8]
+        run1[text='One button — Transmit Request — replaces a phone / e-mail chain across three departments.' font='Times New Roman' size=116205 bold=False color=25364D]
+    Shape id=66 name='Rounded Rectangle 65' type=AUTO_SHAPE (1) pos=(L6.81in,T1.56in) size=(W5.98in,H2.66in)
+    Shape id=67 name='TextBox 66' type=TEXT_BOX (17) pos=(L6.99in,T1.65in) size=(W5.62in,H0.24in)
+      para0 level=0 text='SECTION CONTROLLER · CHIEF CONTROLLER'
+        run0[text='SECTION CONTROLLER · CHIEF CONTROLLER' font='Times New Roman' size=137160 bold=True color=0C9A62]
+    Shape id=68 name='Picture 67' type=PICTURE (13) pos=(L8.03in,T1.92in) size=(W3.54in,H1.28in)
+      [PICTURE]
+    Shape id=69 name='Rectangle 68' type=AUTO_SHAPE (1) pos=(L8.03in,T1.92in) size=(W3.54in,H1.28in)
+    Shape id=70 name='TextBox 69' type=TEXT_BOX (17) pos=(L6.99in,T3.26in) size=(W5.62in,H0.92in)
+      para0 level=0 text='▸ Reviews 3 solved policies (Punctuality-First / Asset-First / Mega-Block) side-by-side with a live confidence score.'
+        run0[text='▸ ' font='Times New Roman' size=116205 bold=True color=0C9A62]
+        run1[text='Reviews 3 solved policies (Punctuality-First / Asset-First / Mega-Block) side-by-side with a live confidence score.' font='Times New Roman' size=116205 bold=False color=25364D]
+      para1 level=0 text='▸ Approves, force-shifts (+30 min) or rejects with a logged reason — every action becomes an audit row.'
+        run0[text='▸ ' font='Times New Roman' size=116205 bold=True color=0C9A62]
+        run1[text='Approves, force-shifts (+30 min) or rejects with a logged reason — every action becomes an audit row.' font='Times New Roman' size=116205 bold=False color=25364D]
+      para2 level=0 text='▸ Live telemetry confirms every running train is clear of the block before sanction, not after.'
+        run0[text='▸ ' font='Times New Roman' size=116205 bold=True color=0C9A62]
+        run1[text='Live telemetry confirms every running train is clear of the block before sanction, not after.' font='Times New Roman' size=116205 bold=False color=25364D]
+    Shape id=71 name='Rounded Rectangle 70' type=AUTO_SHAPE (1) pos=(L0.54in,T4.38in) size=(W2.90in,H2.17in)
+    Shape id=72 name='Rectangle 71' type=AUTO_SHAPE (1) pos=(L0.54in,T4.38in) size=(W2.90in,H0.05in)
+    Shape id=73 name='TextBox 72' type=TEXT_BOX (17) pos=(L0.68in,T4.49in) size=(W2.62in,H0.24in)
+      para0 level=0 text='SOCIAL'
+        run0[text='SOCIAL' font='Times New Roman' size=130810 bold=True color=C9414B]
+    Shape id=74 name='TextBox 73' type=TEXT_BOX (17) pos=(L0.68in,T4.78in) size=(W2.62in,H1.67in)
+      para0 level=0 text='Premium and Superfast keep their 0-minute delay guarantee (Rule B) — protecting the passenger punctuality a CAG audit already flagged as under pressure (77% national average, FY 2024-25).'
+        run0[text='Premium and Superfast keep their 0-minute delay guarantee (Rule B) — protecting the passenger punctuality a CAG audit already flagged as under pressure (77% national average, FY 2024-25).' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=75 name='Rounded Rectangle 74' type=AUTO_SHAPE (1) pos=(L3.66in,T4.38in) size=(W2.90in,H2.17in)
+    Shape id=76 name='Rectangle 75' type=AUTO_SHAPE (1) pos=(L3.66in,T4.38in) size=(W2.90in,H0.05in)
+    Shape id=77 name='TextBox 76' type=TEXT_BOX (17) pos=(L3.80in,T4.49in) size=(W2.62in,H0.24in)
+      para0 level=0 text='SAFETY'
+        run0[text='SAFETY' font='Times New Roman' size=130810 bold=True color=D99200]
+    Shape id=78 name='TextBox 77' type=TEXT_BOX (17) pos=(L3.80in,T4.78in) size=(W2.62in,H1.67in)
+      para0 level=0 text='Formula 1 surfaces the worst rail fracture (severity 96, 28 days overdue, active TSR) ahead of any derailment risk — safety-critical items are never silently outranked.'
+        run0[text='Formula 1 surfaces the worst rail fracture (severity 96, 28 days overdue, active TSR) ahead of any derailment risk — safety-critical items are never silently outranked.' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=79 name='Rounded Rectangle 78' type=AUTO_SHAPE (1) pos=(L6.77in,T4.38in) size=(W2.90in,H2.17in)
+    Shape id=80 name='Rectangle 79' type=AUTO_SHAPE (1) pos=(L6.77in,T4.38in) size=(W2.90in,H0.05in)
+    Shape id=81 name='TextBox 80' type=TEXT_BOX (17) pos=(L6.91in,T4.49in) size=(W2.62in,H0.24in)
+      para0 level=0 text='ECONOMIC'
+        run0[text='ECONOMIC' font='Times New Roman' size=130810 bold=True color=0C9A62]
+    Shape id=82 name='Chart 81' type=CHART (3) pos=(L6.87in,T4.76in) size=(W2.70in,H1.42in)
+    Shape id=83 name='TextBox 82' type=TEXT_BOX (17) pos=(L6.91in,T6.20in) size=(W2.62in,H0.25in)
+      para0 level=0 text='Verified: 3 real defect clusters save 120 track-minutes (26.7%) sharing one possession instead of three.'
+        run0[text='Verified: 3 real defect clusters save 120 track-minutes (26.7%) sharing one possession instead of three.' font='Times New Roman' size=100330 bold=False color=5C7190]
+    Shape id=84 name='Rounded Rectangle 83' type=AUTO_SHAPE (1) pos=(L9.89in,T4.38in) size=(W2.90in,H2.17in)
+    Shape id=85 name='Rectangle 84' type=AUTO_SHAPE (1) pos=(L9.89in,T4.38in) size=(W2.90in,H0.05in)
+    Shape id=86 name='TextBox 85' type=TEXT_BOX (17) pos=(L10.03in,T4.49in) size=(W2.62in,H0.24in)
+      para0 level=0 text='ENVIRONMENTAL'
+        run0[text='ENVIRONMENTAL' font='Times New Roman' size=130810 bold=True color=7657C7]
+    Shape id=87 name='TextBox 86' type=TEXT_BOX (17) pos=(L10.03in,T4.78in) size=(W2.62in,H1.67in)
+      para0 level=0 text='Fewer stand-alone mobilisations for the tamper, BCM and tower-wagon fleet — bundling cuts machine transit runs, not just paperwork.'
+        run0[text='Fewer stand-alone mobilisations for the tamper, BCM and tower-wagon fleet — bundling cuts machine transit runs, not just paperwork.' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=88 name='Rectangle 87' type=AUTO_SHAPE (1) pos=(L0.54in,T6.96in) size=(W12.25in,H0.02in)
+    Shape id=89 name='TextBox 88' type=TEXT_BOX (17) pos=(L0.54in,T7.02in) size=(W6.46in,H0.25in)
+      para0 level=0 text='BUG_HUNTERS  •  SIH 26027'
+        run0[text='BUG_HUNTERS  •  SIH 26027' font='Times New Roman' size=123825 bold=False color=5C7190]
+    Shape id=90 name='TextBox 89' type=TEXT_BOX (17) pos=(L9.69in,T7.02in) size=(W3.10in,H0.25in)
+      para0 level=0 text='SIH 2026  •  Slide 5 of 6'
+        run0[text='SIH 2026  •  Slide 5 of 6' font='Times New Roman' size=123825 bold=False color=5C7190]
+
+==========================================================================================
+SLIDE 6  layout='Blank'
+==========================================================================================
+    Shape id=76 name='Picture 73' type=PICTURE (13) pos=(L11.15in,T0.10in) size=(W1.88in,H0.89in)
+      [PICTURE]
+    Shape id=39 name='TextBox 38' type=TEXT_BOX (17) pos=(L3.33in,T-0.06in) size=(W9.17in,H0.71in)
+      para0 level=0 text='RESEARCH & REFERENCES'
+        run0[text='RESEARCH & REFERENCES' font='Times New Roman' size=457200 bold=None color=None]
+    Shape id=77 name='TextBox 76' type=TEXT_BOX (17) pos=(L0.54in,T0.60in) size=(W12.25in,H0.42in)
+      para0 level=0 text='Government-first evidence — six primary sources, zero invented statistics'
+        run0[text='Government-first evidence — six primary sources, zero invented statistics' font='Times New Roman' size=234950 bold=True color=203B63]
+    Shape id=78 name='TextBox 77' type=TEXT_BOX (17) pos=(L0.54in,T1.05in) size=(W12.25in,H0.30in)
+      para0 level=0 text='Every number quoted in this deck traces back to one of the sources below.'
+        run0[text='Every number quoted in this deck traces back to one of the sources below.' font='Times New Roman' size=146050 bold=False color=5C7190]
+    Shape id=79 name='Rectangle 78' type=AUTO_SHAPE (1) pos=(L0.54in,T1.41in) size=(W12.25in,H0.02in)
+    Shape id=80 name='Rounded Rectangle 79' type=AUTO_SHAPE (1) pos=(L0.54in,T1.56in) size=(W2.20in,H1.62in)
+    Shape id=81 name='TextBox 80' type=TEXT_BOX (17) pos=(L0.68in,T1.67in) size=(W1.92in,H0.34in)
+      para0 level=0 text='1  Define the scope'
+        run0[text='1  ' font='Times New Roman' size=152400 bold=True color=203B63]
+        run1[text='Define the scope' font='Times New Roman' size=134620 bold=True color=203B63]
+    Shape id=82 name='TextBox 81' type=TEXT_BOX (17) pos=(L0.68in,T2.06in) size=(W1.92in,H1.02in)
+      para0 level=0 text='SIH problem statement 26027 and the Ministry of Railways use case.'
+        run0[text='SIH problem statement 26027 and the Ministry of Railways use case.' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=83 name='Right Arrow 82' type=AUTO_SHAPE (1) pos=(L2.76in,T2.27in) size=(W0.12in,H0.20in)
+    Shape id=84 name='Rounded Rectangle 83' type=AUTO_SHAPE (1) pos=(L2.90in,T1.56in) size=(W2.20in,H1.62in)
+    Shape id=85 name='TextBox 84' type=TEXT_BOX (17) pos=(L3.04in,T1.67in) size=(W1.92in,H0.34in)
+      para0 level=0 text='2  Identify source systems'
+        run0[text='2  ' font='Times New Roman' size=152400 bold=True color=203B63]
+        run1[text='Identify source systems' font='Times New Roman' size=134620 bold=True color=203B63]
+    Shape id=86 name='TextBox 85' type=TEXT_BOX (17) pos=(L3.04in,T2.06in) size=(W1.92in,H1.02in)
+      para0 level=0 text='CRIS / Indian Railways: COA, TMS, SMMS and TDMS — confirmed with each system’s own owner.'
+        run0[text='CRIS / Indian Railways: COA, TMS, SMMS and TDMS — confirmed with each system’s own owner.' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=87 name='Right Arrow 86' type=AUTO_SHAPE (1) pos=(L5.12in,T2.27in) size=(W0.12in,H0.20in)
+    Shape id=88 name='Rounded Rectangle 87' type=AUTO_SHAPE (1) pos=(L5.25in,T1.56in) size=(W2.20in,H1.62in)
+    Shape id=89 name='TextBox 88' type=TEXT_BOX (17) pos=(L5.39in,T1.67in) size=(W1.92in,H0.34in)
+      para0 level=0 text='3  Read operating rules'
+        run0[text='3  ' font='Times New Roman' size=152400 bold=True color=203B63]
+        run1[text='Read operating rules' font='Times New Roman' size=134620 bold=True color=203B63]
+    Shape id=90 name='TextBox 89' type=TEXT_BOX (17) pos=(L5.39in,T2.06in) size=(W1.92in,H1.02in)
+      para0 level=0 text='Division Working Time Table, Rolling Block Plan guidance and RDSO 25 kV safety code.'
+        run0[text='Division Working Time Table, Rolling Block Plan guidance and RDSO 25 kV safety code.' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=91 name='Right Arrow 90' type=AUTO_SHAPE (1) pos=(L7.47in,T2.27in) size=(W0.12in,H0.20in)
+    Shape id=92 name='Rounded Rectangle 91' type=AUTO_SHAPE (1) pos=(L7.61in,T1.56in) size=(W2.20in,H1.62in)
+    Shape id=93 name='TextBox 92' type=TEXT_BOX (17) pos=(L7.75in,T1.67in) size=(W1.92in,H0.34in)
+      para0 level=0 text='4  Validate provenance'
+        run0[text='4  ' font='Times New Roman' size=152400 bold=True color=203B63]
+        run1[text='Validate provenance' font='Times New Roman' size=134620 bold=True color=203B63]
+    Shape id=94 name='TextBox 93' type=TEXT_BOX (17) pos=(L7.75in,T2.06in) size=(W1.92in,H1.02in)
+      para0 level=0 text='Approved endpoint, owning division, source date, chainage, line, units and freshness.'
+        run0[text='Approved endpoint, owning division, source date, chainage, line, units and freshness.' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=95 name='Right Arrow 94' type=AUTO_SHAPE (1) pos=(L9.83in,T2.27in) size=(W0.12in,H0.20in)
+    Shape id=96 name='Rounded Rectangle 95' type=AUTO_SHAPE (1) pos=(L9.96in,T1.56in) size=(W2.20in,H1.62in)
+    Shape id=97 name='TextBox 96' type=TEXT_BOX (17) pos=(L10.10in,T1.67in) size=(W1.92in,H0.34in)
+      para0 level=0 text='5  Build the plan'
+        run0[text='5  ' font='Times New Roman' size=152400 bold=True color=0C9A62]
+        run1[text='Build the plan' font='Times New Roman' size=134620 bold=True color=203B63]
+    Shape id=98 name='TextBox 97' type=TEXT_BOX (17) pos=(L10.10in,T2.06in) size=(W1.92in,H1.02in)
+      para0 level=0 text='ML estimates urgency; bundling and CP-SAT generate candidate windows for controller review.'
+        run0[text='ML estimates urgency; bundling and CP-SAT generate candidate windows for controller review.' font='Times New Roman' size=114300 bold=False color=25364D]
+    Shape id=99 name='Rounded Rectangle 98' type=AUTO_SHAPE (1) pos=(L0.54in,T3.42in) size=(W3.95in,H0.98in)
+    Shape id=100 name='Rectangle 99' type=AUTO_SHAPE (1) pos=(L0.54in,T3.42in) size=(W0.06in,H0.98in)
+    Shape id=101 name='TextBox 100' type=TEXT_BOX (17) pos=(L0.72in,T3.50in) size=(W3.63in,H0.82in)
+      para0 level=0 text='CRIS — Centre for Railway Information Systems'
+        run0[text='CRIS — Centre for Railway Information Systems' font='Times New Roman' size=124460 bold=True color=203B63]
+      para1 level=0 text='cris.org.in'
+        run0[text='cris.org.in' font='Times New Roman' size=116713 bold=True color=0079C8]
+      para2 level=0 text='Owns the COA, TMS and TDMS system definitions this prototype integrates against.'
+        run0[text='Owns the COA, TMS and TDMS system definitions this prototype integrates against.' font='Times New Roman' size=109220 bold=False color=25364D]
+    Shape id=102 name='Rounded Rectangle 101' type=AUTO_SHAPE (1) pos=(L4.69in,T3.42in) size=(W3.95in,H0.98in)
+    Shape id=103 name='Rectangle 102' type=AUTO_SHAPE (1) pos=(L4.69in,T3.42in) size=(W0.06in,H0.98in)
+    Shape id=104 name='TextBox 103' type=TEXT_BOX (17) pos=(L4.87in,T3.50in) size=(W3.63in,H0.82in)
+      para0 level=0 text='Central Railway + RDSO'
+        run0[text='Central Railway + RDSO' font='Times New Roman' size=124460 bold=True color=203B63]
+      para1 level=0 text='cr.indianrailways.gov.in · rdso.indianrailways.gov.in'
+        run0[text='cr.indianrailways.gov.in · rdso.indianrailways.gov.in' font='Times New Roman' size=116713 bold=True color=0079C8]
+      para2 level=0 text='Zonal operating rules and the 25 kV traction safety code (isolation, earthing).'
+        run0[text='Zonal operating rules and the 25 kV traction safety code (isolation, earthing).' font='Times New Roman' size=109220 bold=False color=25364D]
+    Shape id=105 name='Rounded Rectangle 104' type=AUTO_SHAPE (1) pos=(L8.84in,T3.42in) size=(W3.95in,H0.98in)
+    Shape id=106 name='Rectangle 105' type=AUTO_SHAPE (1) pos=(L8.84in,T3.42in) size=(W0.06in,H0.98in)
+    Shape id=107 name='TextBox 106' type=TEXT_BOX (17) pos=(L9.02in,T3.50in) size=(W3.63in,H0.82in)
+      para0 level=0 text='Ministry of Railways — Lok Sabha replies'
+        run0[text='Ministry of Railways — Lok Sabha replies' font='Times New Roman' size=124460 bold=True color=203B63]
+      para1 level=0 text='sansad.in'
+        run0[text='sansad.in' font='Times New Roman' size=116713 bold=True color=0079C8]
+      para2 level=0 text='Punctuality: 73.62% (2023-24) → 77.12% (2024-25) → 77.43% (2025-26).'
+        run0[text='Punctuality: 73.62% (2023-24) → 77.12% (2024-25) → 77.43% (2025-26).' font='Times New Roman' size=109220 bold=False color=25364D]
+    Shape id=108 name='Rounded Rectangle 107' type=AUTO_SHAPE (1) pos=(L0.54in,T4.54in) size=(W6.02in,H0.72in)
+    Shape id=109 name='Rectangle 108' type=AUTO_SHAPE (1) pos=(L0.54in,T4.54in) size=(W0.06in,H0.72in)
+    Shape id=110 name='TextBox 109' type=TEXT_BOX (17) pos=(L0.72in,T4.61in) size=(W5.70in,H0.58in)
+      para0 level=0 text='SIH 2026 — Problem Statement 26027   —  sih.gov.in'
+        run0[text='SIH 2026 — Problem Statement 26027' font='Times New Roman' size=124460 bold=True color=203B63]
+        run1[text='   —  ' font='Times New Roman' size=114300 bold=False color=5C7190]
+        run2[text='sih.gov.in' font='Times New Roman' size=116713 bold=True color=0079C8]
+      para1 level=0 text='Official brief this solution answers, quoted directly on Slide 2.'
+        run0[text='Official brief this solution answers, quoted directly on Slide 2.' font='Times New Roman' size=109220 bold=False color=25364D]
+    Shape id=111 name='Rounded Rectangle 110' type=AUTO_SHAPE (1) pos=(L6.77in,T4.54in) size=(W6.02in,H0.72in)
+    Shape id=112 name='Rectangle 111' type=AUTO_SHAPE (1) pos=(L6.77in,T4.54in) size=(W0.06in,H0.72in)
+    Shape id=113 name='TextBox 112' type=TEXT_BOX (17) pos=(L6.95in,T4.61in) size=(W5.70in,H0.58in)
+      para0 level=0 text='PRS Legislative Research + Open Data   —  prsindia.org · data.gov.in'
+        run0[text='PRS Legislative Research + Open Data' font='Times New Roman' size=124460 bold=True color=203B63]
+        run1[text='   —  ' font='Times New Roman' size=114300 bold=False color=5C7190]
+        run2[text='prsindia.org · data.gov.in' font='Times New Roman' size=116713 bold=True color=0079C8]
+      para1 level=0 text='CAG audit context (track defects named as a delay driver) + open government datasets.'
+        run0[text='CAG audit context (track defects named as a delay driver) + open government datasets.' font='Times New Roman' size=109220 bold=False color=25364D]
+    Shape id=114 name='Rounded Rectangle 113' type=AUTO_SHAPE (1) pos=(L0.54in,T5.40in) size=(W12.25in,H0.62in)
+    Shape id=115 name='TextBox 114' type=TEXT_BOX (17) pos=(L0.72in,T5.46in) size=(W11.89in,H0.50in)
+      para0 level=0 text='PROTOTYPE DATA DISCLOSURE  —  this build runs on a locally encoded CSMT–Pune corridor, train and defect set, plus synthetic ML training labels, so the demo works offline. Map tiles are OpenStreetMap / OpenRailwayMap for display only. Production use needs authorised TMS/SMMS/TDMS/COA read access, validated in the shadow-mode pilot on Slide 4.'
+        run0[text='PROTOTYPE DATA DISCLOSURE  —  ' font='Times New Roman' size=111760 bold=True color=D99200]
+        run1[text='this build runs on a locally encoded CSMT–Pune corridor, train and defect set, plus synthetic ML training labels, so the demo works offline. Map tiles are OpenStreetMap / OpenRailwayMap for display only. Production use needs authorised TMS/SMMS/TDMS/COA read access, validated in the shadow-mode pilot on Slide 4.' font='Times New Roman' size=111760 bold=False color=25364D]
+    Shape id=116 name='TextBox 115' type=TEXT_BOX (17) pos=(L0.54in,T6.10in) size=(W12.25in,H0.24in)
+      para0 level=0 text='Six primary sources cited above — four Government of India / Railway domains, one legislative-research analysis, one official SIH brief. No blog post or AI-generated statistic is used in this deck.'
+        run0[text='Six primary sources cited above — four Government of India / Railway domains, one legislative-research analysis, one official SIH brief. No blog post or AI-generated statistic is used in this deck.' font='Times New Roman' size=109220 bold=False color=5C7190]
+    Shape id=117 name='Rectangle 116' type=AUTO_SHAPE (1) pos=(L0.54in,T6.96in) size=(W12.25in,H0.02in)
+    Shape id=118 name='TextBox 117' type=TEXT_BOX (17) pos=(L0.54in,T7.02in) size=(W6.46in,H0.25in)
+      para0 level=0 text='BUG_HUNTERS  •  SIH 26027'
+        run0[text='BUG_HUNTERS  •  SIH 26027' font='Times New Roman' size=123825 bold=False color=5C7190]
+    Shape id=119 name='TextBox 118' type=TEXT_BOX (17) pos=(L9.69in,T7.02in) size=(W3.10in,H0.25in)
+      para0 level=0 text='SIH 2026  •  Slide 6 of 6'
+        run0[text='SIH 2026  •  Slide 6 of 6' font='Times New Roman' size=123825 bold=False color=5C7190]

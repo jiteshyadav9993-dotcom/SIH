@@ -1,0 +1,14 @@
+[project]
+name = "pythonproject5"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "ortools",
+    "fastapi",
+    "uvicorn",
+    "python-multipart",
+    "scikit-learn",
+    "joblib",
+    "sqlalchemy",
+    "psycopg2-binary",
+]

@@ -1,0 +1,93 @@
+{
+  "coa_export_id": "COA-CR-2026-EXPORT-041",
+  "generated_at": "2026-09-20T05:30:00+05:30",
+  "corridor_block_windows": [
+    {
+      "sanction_id": "COA-CR-2026-BLK-1042",
+      "section_id": "SECTION_3",
+      "line": "MID",
+      "date": "2026-09-28",
+      "window_start": "01:00",
+      "window_end": "05:00",
+      "block_type": "TRAFFIC_ONLY",
+      "sanctioning_authority": "Sr.DOM/CR",
+      "remarks": "Weekly ghat mega-block, pre-sanctioned"
+    },
+    {
+      "sanction_id": "COA-CR-2026-BLK-1043",
+      "section_id": "SECTION_1",
+      "line": "UP_FAST",
+      "date": "2026-09-27",
+      "window_start": "00:30",
+      "window_end": "04:00",
+      "block_type": "TRAFFIC_ONLY",
+      "sanctioning_authority": "Sr.DEN/CR",
+      "remarks": "Suburban nightly block, Dadar-Thane"
+    },
+    {
+      "sanction_id": "COA-CR-2026-BLK-1044",
+      "section_id": "SECTION_2",
+      "line": "DN",
+      "date": "2026-09-27",
+      "window_start": "23:30",
+      "window_end": "03:00",
+      "block_type": "POWER_AND_TRAFFIC",
+      "sanctioning_authority": "Sr.DEE/TRD/CR",
+      "remarks": "OHE tower-wagon possession, Kalyan-Karjat"
+    },
+    {
+      "sanction_id": "COA-CR-2026-BLK-1045",
+      "section_id": "SECTION_4",
+      "line": "DN",
+      "date": "2026-09-29",
+      "window_start": "01:00",
+      "window_end": "05:00",
+      "block_type": "TRAFFIC_ONLY",
+      "sanctioning_authority": "Sr.DOM/CR",
+      "remarks": "Deep-screening extended block, Pune plateau"
+    },
+    {
+      "sanction_id": "COA-CR-2026-BLK-1046",
+      "section_id": "SECTION_3",
+      "line": "UP",
+      "date": "2026-09-30",
+      "window_start": "00:00",
+      "window_end": "04:00",
+      "block_type": "POWER_AND_TRAFFIC",
+      "sanctioning_authority": "Sr.DEE/TRD/CR",
+      "remarks": "Ghat feeder maintenance window"
+    },
+    {
+      "sanction_id": "COA-CR-2026-BLK-9999",
+      "section_id": "SECTION_9",
+      "line": "UP",
+      "date": "2026-09-28",
+      "window_start": "01:00",
+      "window_end": "05:00",
+      "block_type": "TRAFFIC_ONLY",
+      "sanctioning_authority": "Sr.DOM/CR",
+      "remarks": "Bad row: SECTION_9 does not exist on this corridor"
+    },
+    {
+      "sanction_id": "COA-CR-2026-BLK-9998",
+      "section_id": "SECTION_1",
+      "line": "UP_FAST",
+      "date": "2026-09-28",
+      "window_start": "25:00",
+      "window_end": "05:00",
+      "block_type": "TRAFFIC_ONLY",
+      "sanctioning_authority": "Sr.DOM/CR",
+      "remarks": "Bad row: window_start 25:00 is not a valid 24h time"
+    },
+    {
+      "section_id": "SECTION_1",
+      "line": "UP_FAST",
+      "date": "2026-09-28",
+      "window_start": "02:00",
+      "window_end": "05:00",
+      "block_type": "TRAFFIC_ONLY",
+      "sanctioning_authority": "Sr.DOM/CR",
+      "remarks": "Bad row: sanction_id field is missing entirely"
+    }
+  ]
+}
