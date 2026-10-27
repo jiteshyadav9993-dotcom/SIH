@@ -16,7 +16,7 @@ This is a working prototype of a coordinated block-planning desk: three departme
 
 Mapped to the four expected-solution bullets in SIH-26027 (Ministry of Railways).
 
-| Official ask | What this prototype does | What it does not claim |
+| Official ask | What this prototype does | What we can also do |
 |---|---|---|
 | Integrate TMS, SMMS, TDMS with COA corridor availability, the working timetable, and a goods forecast | Parsers for those four export shapes, an encoded CSMT–Pune corridor (~192 km, ~170 modelled services), and a seeded freight-forecast jitter on the goods WTT | Live TMS / SMMS / TDMS / COA / BDMS endpoints. Sample files are stand-ins. Severity mappings are engineering assumptions, not RDSO tables. |
 | AI/ML to prioritise and schedule by criticality, urgency, and asset impact | An inspectable Formula 1 urgency score. A separate Gradient Boosting forecast of days until severity 80. CP-SAT chooses the window | That the trained model owns safety scheduling. Formula 1 does. ML labels are synthetic, not real defect histories. The report reader is local sentence rules, not a generative model. |
