@@ -1,0 +1,45 @@
+﻿---
+description: System Architecture and Modular Boundaries for Indian Railways DSS
+globs: "**/*.{py,html,json,csv}"
+alwaysApply: true
+---
+# Project: Central Railway Automatic Block Planning DSS (SIH-26027)
+
+## Modular 8-File Target Architecture
+The system is being refactored from 4 legacy files into an 8-file modular layout. Always respect these strict boundaries:
+
+1. `topology.py`:
+   - Contains physical network data: station nodes, chainage KM, tracks (4-line, 2-line, 3-line), and crossover switch graphs.
+   - Never place solver constraints or timetable parsing in this file.
+
+2. `timetable.py`:
+   - Loads and parses Central Railway Working Timetables (WTT) from `/data`.
+   - Computes station entry/exit trajectories and delays.
+
+3. `defects.py`:
+   - Manages maintenance defect backlogs across TMS, TDMS, and SMMS.
+   - Implements Priority Urgency Scoring (Formula 1) and Spatial Bundling clustering (Formula 2).
+
+4. `solver.py`:
+   - Dedicated Google OR-Tools CP-SAT formulation.
+   - Enforces hard constraints (IntervalVar non-overlaps, inter-train headways, traction earthing) and Pareto objective penalties.
+   - Pure optimization logic only; receives structured inputs and outputs scheduled windows.
+
+5. `metrics.py`:
+   - Physics and analytics module: dynamic TSR kinetic momentum loss and delay cascade evaluations.
+
+6. `app.py`:
+   - FastAPI ASGI REST server with CORS middleware.
+   - Strictly handles request routing, system state, and JSON responses. Calls solver and domain modules; contains zero solver math.
+
+7. `templates/index.html`:
+   - CRIS-style dark VDU console with Leaflet GIS and SVG schematic layout representing real track switches.
+
+8. `data/`:
+   - Storage for raw datasets: WTT CSVs and defect JSON records.
+
+## Strict Coding Standards
+- Python 3.11+ with explicit type hints on all function parameters and returns.
+- NEVER output `# TODO`, `pass`, or placeholder comments. Always write complete, functioning code.
+- NEVER delete or overwrite existing working logic unless specifically told to refactor it.
+- When creating new modules, import cleanly from the designated domain file rather than duplicating logic.

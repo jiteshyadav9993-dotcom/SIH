@@ -48,7 +48,6 @@ MOBILIZATION_BUFFER_MIN: Final[float] = 15.0
 GROUPING_BONUS: Final[float] = 15.0
 DEFAULT_SPATIAL_GAP_KM: Final[float] = 3.0
 MANDATORY_SEVERITY_THRESHOLD: Final[int] = 80
-SLOT_GRANULARITY_MIN: Final[float] = 5.0
 DOWNSTREAM_CASCADE_DECAY: Final[float] = 0.65
 
 # Formula 1 weights (P_i ∈ [0, 100]).
@@ -243,9 +242,6 @@ class SpatialFootprint:
     entry_km: float
     exit_km: float
 
-    def contains_km(self, km: float) -> bool:
-        return self.entry_km <= float(km) <= self.exit_km
-
     def overlaps(self, other_start_km: float, other_end_km: float) -> bool:
         lo = min(float(other_start_km), float(other_end_km))
         hi = max(float(other_start_km), float(other_end_km))
@@ -398,14 +394,6 @@ def downstream_cascade_penalty(
         total += weight * hop_delay
         hop_delay *= fade
     return round(total, 2)
-
-
-def align_slot_minute(minute: float, granularity_min: float = SLOT_GRANULARITY_MIN) -> float:
-    """Snap a candidate possession start onto the dynamic time-slot grid."""
-    step = float(granularity_min)
-    if step <= 0.0:
-        raise ValueError("Slot granularity must be positive")
-    return round(round(float(minute) / step) * step, 3)
 
 
 # ---------------------------------------------------------------------------
@@ -569,17 +557,6 @@ class MachineAllocation:
         return not (float(end_min) <= self.start_min or float(start_min) >= self.end_min)
 
 
-def machinery_contention_groups(
-    bundles: Sequence[MaintenanceBundle],
-) -> dict[MachineType, tuple[str, ...]]:
-    """Bundle IDs that share a scarce machine type and cannot occupy it in parallel."""
-    groups: dict[MachineType, list[str]] = {}
-    for bundle in bundles:
-        for machine in bundle.machines_required():
-            groups.setdefault(machine, []).append(bundle.bundle_id)
-    return {machine: tuple(ids) for machine, ids in groups.items()}
-
-
 def allocate_machinery(
     bookings: Sequence[tuple[MaintenanceBundle, float, float]],
     limits: Mapping[MachineType, int] | None = None,
@@ -698,14 +675,9 @@ def get_active_maintenance_bundles() -> tuple[MaintenanceBundle, ...]:
     return cluster_defects_into_bundles(get_default_defects())
 
 
-DEFAULT_DEFECTS: tuple[TrackDefect, ...] = get_default_defects()
-DEFAULT_BUNDLES: tuple[MaintenanceBundle, ...] = cluster_defects_into_bundles(DEFAULT_DEFECTS)
-
 __all__ = [
     "APPROACH_FOOTPRINT_KM",
     "BlockType",
-    "DEFAULT_BUNDLES",
-    "DEFAULT_DEFECTS",
     "DEFAULT_SPATIAL_GAP_KM",
     "DEFECT_TYPE_SPEC",
     "DEPARTURE_FOOTPRINT_KM",
@@ -724,14 +696,12 @@ __all__ = [
     "POWER_SUB_SECTORS_BY_ID",
     "PowerSubSector",
     "SAFETY_CLEARANCE_KM",
-    "SLOT_GRANULARITY_MIN",
     "SOURCE_SMMS",
     "SOURCE_TDMS",
     "SOURCE_TMS",
     "SpatialFootprint",
     "TrackDefect",
     "allocate_machinery",
-    "align_slot_minute",
     "cluster_defects_into_bundles",
     "compute_priority_urgency_score",
     "estimate_traffic_density",
@@ -741,5 +711,4 @@ __all__ = [
     "get_power_subsector",
     "get_power_subsector_for_location",
     "knock_on_delay_weight",
-    "machinery_contention_groups",
 ]

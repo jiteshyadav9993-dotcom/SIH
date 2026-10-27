@@ -1,0 +1,12 @@
+# Only needed to use PostgreSQL instead of the default SQLite database.
+psycopg2-binary
+
+# Used by the slide-building scripts, and by optional Tesseract OCR in report_documents.py.
+python-pptx
+Pillow
+
+# Optional OCR for report_documents.py. The Tesseract program must also be on PATH.
+pytesseract
+
+# Windows-only, and only used by the slide-building scripts in the tools folder.
+pywin32

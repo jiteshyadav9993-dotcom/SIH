@@ -20,8 +20,8 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 import defects
-from defects import MachineType, MaintenanceBundle, TrackDefect  # noqa: F401 — TrackDefect re-exported
-from solver import DelayedTrain, ScheduledBlock, SolverResult
+from defects import MachineType, MaintenanceBundle
+from solver import ScheduledBlock, SolverResult
 from timetable import (
     ALL_TRAJECTORIES,
     TYPE_EXPRESS,
@@ -358,6 +358,69 @@ def get_metrics_report(metrics: ScheduleMetrics) -> dict[str, str]:
     }
 
 
+def summarize_completed_work(records: list[dict[str, object]]) -> dict[str, object]:
+    """Summarise fixed defects from the completed-maintenance log.
+
+    Records that share a bundle id and a start minute were cleared in one
+    possession. Possessions that fixed only one defect are counted, but they
+    do not add to the track-time totals. For a possession of two or more
+    defects, standalone time is the sum of each job's own block, and bundled
+    time is the longest of those blocks plus the mobilisation buffer. The
+    gain is the minutes saved as a percentage of that standalone time. A
+    missing department is counted as TMS.
+    """
+    groups: dict[tuple[object, object, object], list[dict[str, object]]] = {}
+    by_department: dict[str, int] = {}
+    by_window: dict[str, int] = {}
+    safety_critical_cleared: int = 0
+    overdue_total: float = 0.0
+
+    for record in records:
+        groups.setdefault((record["bundle_id"], record["start_min"], record.get("completed_at")), []).append(record)
+
+        raw_department = record.get("department", "TMS")
+        department = "TMS" if raw_department is None else str(raw_department)
+        by_department[department] = by_department.get(department, 0) + 1
+
+        window_label = str(record["window_label"])
+        by_window[window_label] = by_window.get(window_label, 0) + 1
+
+        if int(record["severity"]) >= defects.MANDATORY_SEVERITY_THRESHOLD:
+            safety_critical_cleared += 1
+        overdue_total += float(record["days_overdue"])
+
+    multi_groups: list[list[dict[str, object]]] = [
+        rows for rows in groups.values() if len(rows) >= 2
+    ]
+    standalone_min: int | float = sum(
+        row["required_block_min"] for rows in multi_groups for row in rows
+    )
+    bundled_total: float = 0.0
+    for rows in multi_groups:
+        longest = max(float(row["required_block_min"]) for row in rows)
+        bundled_total += longest + defects.MOBILIZATION_BUFFER_MIN
+    bundled_min: int = round(bundled_total)
+    track_minutes_saved: int | float = standalone_min - bundled_min
+    if standalone_min == 0:
+        bundling_gain_pct: float = 0.0
+    else:
+        bundling_gain_pct = round((track_minutes_saved / standalone_min) * 100.0, 1)
+
+    return {
+        "defects_completed": len(records),
+        "possessions_used": len(groups),
+        "multi_defect_possessions": len(multi_groups),
+        "standalone_min": standalone_min,
+        "bundled_min": bundled_min,
+        "track_minutes_saved": track_minutes_saved,
+        "bundling_gain_pct": bundling_gain_pct,
+        "by_department": by_department,
+        "by_window": by_window,
+        "safety_critical_cleared": safety_critical_cleared,
+        "overdue_days_cleared": round(overdue_total, 1),
+    }
+
+
 __all__ = [
     "ScheduleMetrics",
     "calculate_bundling_efficiency",
@@ -365,4 +428,5 @@ __all__ = [
     "generate_metrics",
     "get_metrics_report",
     "tsr_time_loss_min",
+    "summarize_completed_work",
 ]

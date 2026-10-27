@@ -13,7 +13,8 @@ sole owner of cp_model logic.
 Concepts
 --------
 PossessionWindow  — the block of clock-minutes available on a given
-                     day (nightly, Sunday mega-block, or extended block).
+                     day (nightly, Sunday mega-block, extended block, or
+                     daytime off-peak).
 DayPlan           — one day's outcome: which bundles were assigned,
                      and the real CP-SAT SolverResult for that day.
 HorizonPlan       — a run of consecutive DayPlans (7 days for a
@@ -47,10 +48,13 @@ MEGA_BLOCK_START_MIN: Final[int] = 0    # 00:00
 MEGA_BLOCK_END_MIN: Final[int] = 420    # 07:00 — Sunday wide window
 EXTENDED_START_MIN: Final[int] = 0      # 00:00
 EXTENDED_END_MIN: Final[int] = 720      # 12:00 — total traffic block for an oversized job
+DAY_OFFPEAK_START_MIN: Final[int] = 690  # 11:30
+DAY_OFFPEAK_END_MIN: Final[int] = 870    # 14:30 — daytime off-peak window
 
 LABEL_NIGHTLY: Final[str] = "NIGHTLY"
 LABEL_MEGA_BLOCK: Final[str] = "MEGA_BLOCK"
 LABEL_EXTENDED: Final[str] = "EXTENDED_BLOCK"
+LABEL_DAY_OFFPEAK: Final[str] = "DAY_OFFPEAK"
 
 SUNDAY_WEEKDAY: Final[int] = 6  # date.weekday(): Monday=0 ... Sunday=6
 
@@ -250,6 +254,89 @@ def _trains_for_window(
     )
 
 
+def _book_one_job_at_a_time(
+    candidates: Sequence[MaintenanceBundle],
+    window: PossessionWindow,
+    trains: Sequence[TrainTrajectory],
+    extra_days: int,
+    time_limit_sec: float,
+) -> tuple[list[MaintenanceBundle], SolverResult | None]:
+    """Book whatever really fits a window, one job at a time.
+
+    Mandatory bundles are tried first, then the highest decayed urgency.
+    A candidate is skipped when its transit envelope would push the booked
+    minutes over the window, or when it would exceed the machine pool.
+    Each remaining candidate is solved together with the jobs already
+    accepted. It stays only when that solve is OPTIMAL or FEASIBLE.
+    """
+    ranked = sorted(
+        candidates,
+        key=lambda bundle: (not bundle.is_mandatory, -decayed_urgency(bundle, extra_days)),
+    )
+    accepted: list[MaintenanceBundle] = []
+    used_min = 0.0
+    machine_committed: dict[MachineType, int] = {}
+    last_result: SolverResult | None = None
+
+    for bundle in ranked:
+        envelope = calculate_transit_envelope(bundle)
+        if used_min + envelope > window.capacity_min:
+            continue
+        projected = _fits_machine_pool(bundle, machine_committed)
+        if projected is None:
+            continue
+        trial = solve_corridor_schedule(
+            [*accepted, bundle],
+            trains,
+            time_limit_sec=time_limit_sec,
+            earliest_start_min=window.start_min,
+            latest_end_min=window.end_min,
+        )
+        if trial.status not in ("OPTIMAL", "FEASIBLE"):
+            continue
+        accepted.append(bundle)
+        used_min += envelope
+        machine_committed = projected
+        last_result = trial
+
+    return accepted, last_result
+
+
+def _book_offpeak_day(
+    candidates: Sequence[MaintenanceBundle],
+    trains: Sequence[TrainTrajectory],
+    current_date: date,
+    extra_days: int,
+) -> tuple[DayPlan, set[str]] | None:
+    """Book the 11:30-14:30 off-peak window against every train.
+
+    Returns nothing when no job fits, so a quiet afternoon adds no row.
+    """
+    window = PossessionWindow(
+        DAY_OFFPEAK_START_MIN,
+        DAY_OFFPEAK_END_MIN,
+        LABEL_DAY_OFFPEAK,
+    )
+    booked, result = _book_one_job_at_a_time(
+        candidates,
+        window,
+        trains,
+        extra_days,
+        1.0,
+    )
+    if not booked or result is None:
+        return None
+    booked_ids = {bundle.bundle_id for bundle in booked}
+    plan = DayPlan(
+        calendar_date=current_date,
+        window=window,
+        assigned_bundle_ids=tuple(bundle.bundle_id for bundle in booked),
+        result=result,
+        trains_in_play=len(trains),
+    )
+    return plan, booked_ids
+
+
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
@@ -309,7 +396,10 @@ def build_horizon_plan(
     once with each mandatory bundle split the same way. Anything the
     solver rejects, or anything
     that didn't fit the day's capacity at all, stays in the pool and gets
-    re-ranked (with higher decayed urgency) on the next day.
+    re-ranked (with higher decayed urgency) on the next day. If the day's
+    joint solve is still not OPTIMAL or FEASIBLE, that window is booked
+    one job at a time. Bundles still waiting after the night plan can take
+    the same date's daytime off-peak window, except on an extended block.
     """
     remaining: list[MaintenanceBundle] = list(bundles)
     trains: tuple[TrainTrajectory, ...] = get_all_trajectories()
@@ -421,6 +511,23 @@ def build_horizon_plan(
                         result = fallback_result
                         solved_candidates = fallback_candidates
                         split_succeeded = False
+            if result.status not in ("OPTIMAL", "FEASIBLE"):
+                booked, booked_result = _book_one_job_at_a_time(
+                    remaining,
+                    window,
+                    day_trains,
+                    offset,
+                    time_limit_sec,
+                )
+                if booked and booked_result is not None:
+                    result = booked_result
+                    solved_candidates = booked
+                    split_succeeded = False
+                    print(
+                        f"[horizon] {current_date.isoformat()}: {window.label} "
+                        f"booked one job at a time: "
+                        f"{', '.join(bundle.bundle_id for bundle in booked)}"
+                    )
             if split_succeeded:
                 # The parent bundle ids are what the horizon pool still holds.
                 # A successful split must retire those parents even when the
@@ -447,6 +554,12 @@ def build_horizon_plan(
         )
 
         remaining = [b for b in remaining if b.bundle_id not in confirmed_ids]
+        if remaining and window.label != LABEL_EXTENDED:
+            offpeak = _book_offpeak_day(remaining, trains, current_date, offset)
+            if offpeak is not None:
+                offpeak_plan, booked_ids = offpeak
+                days.append(offpeak_plan)
+                remaining = [b for b in remaining if b.bundle_id not in booked_ids]
 
     return HorizonPlan(
         start_date=start_date,
@@ -458,8 +571,11 @@ def build_horizon_plan(
 __all__ = [
     "DayPlan",
     "HorizonPlan",
+    "DAY_OFFPEAK_END_MIN",
+    "DAY_OFFPEAK_START_MIN",
     "EXTENDED_END_MIN",
     "EXTENDED_START_MIN",
+    "LABEL_DAY_OFFPEAK",
     "LABEL_EXTENDED",
     "LABEL_MEGA_BLOCK",
     "LABEL_NIGHTLY",

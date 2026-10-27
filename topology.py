@@ -49,17 +49,6 @@ LINES_BY_SECTION: Final[dict[str, tuple[str, ...]]] = {
     SECTION_4_ID: (LINE_UP, LINE_DN),
 }
 
-# Contiguous chainage over which a named running line is physically present.
-LINE_EXTENT_KM: Final[dict[str, tuple[float, float]]] = {
-    LINE_UP_FAST: (0.0, 54.0),
-    LINE_DN_FAST: (0.0, 54.0),
-    LINE_UP_SLOW: (0.0, 54.0),
-    LINE_DN_SLOW: (0.0, 54.0),
-    LINE_UP: (54.0, 192.0),
-    LINE_DN: (54.0, 192.0),
-    LINE_MID: (100.0, 128.0),
-}
-
 KIND_SCISSORS: Final[str] = "scissors"
 KIND_LADDER: Final[str] = "ladder"
 KIND_JUNCTION: Final[str] = "junction"
@@ -110,13 +99,6 @@ class CrossoverSwitch:
     def connects(self, line: str) -> bool:
         return line == self.from_line or line == self.to_line
 
-    def other_line(self, line: str) -> str:
-        if line == self.from_line:
-            return self.to_line
-        if line == self.to_line:
-            return self.from_line
-        raise ValueError(f"Line {line!r} is not incident to switch {self.id}")
-
 
 def _require_corridor_km(km: float) -> float:
     chainage = float(km)
@@ -151,58 +133,12 @@ def get_available_lines_at_km(km: float) -> list[str]:
     return list(LINES_BY_SECTION[section_id])
 
 
-def _line_exists_at_km(line: str, km: float) -> bool:
-    extent = LINE_EXTENT_KM.get(line)
-    if extent is None:
-        return False
-    start_km, end_km = extent
-    return start_km <= km <= end_km
-
-
-def get_reachable_crossovers(line: str, km: float) -> list[CrossoverSwitch]:
-    """
-    Return every crossover incident to `line` that a movement at `km` can
-    reach by remaining on that named running line (no implied line change).
-
-    Results are ordered by increasing absolute distance from `km`, then by km.
-    """
-    chainage = _require_corridor_km(km)
-    running_line = str(line).upper()
-    if running_line not in LINE_EXTENT_KM:
-        raise ValueError(f"Unknown running line {line!r}")
-    if not _line_exists_at_km(running_line, chainage):
-        present = get_available_lines_at_km(chainage)
-        raise ValueError(
-            f"Line {running_line!r} is not present at KM {chainage}; "
-            f"available lines: {present}"
-        )
-
-    start_km, end_km = LINE_EXTENT_KM[running_line]
-    reachable = [
-        switch
-        for switch in CROSSOVERS
-        if switch.connects(running_line) and start_km <= switch.km <= end_km
-    ]
-    reachable.sort(key=lambda s: (abs(s.km - chainage), s.km, s.id))
-    return reachable
-
-
 def get_station_by_code(code: str) -> StationNode:
     key = str(code).upper()
     for station in STATIONS:
         if station.code == key:
             return station
     raise KeyError(f"Unknown station code {code!r}")
-
-
-def get_crossovers_at_station(code: str) -> list[CrossoverSwitch]:
-    key = str(code).upper()
-    return [switch for switch in CROSSOVERS if switch.station_code == key]
-
-
-def get_track_segments_for_line(line: str) -> list[TrackSegment]:
-    running_line = str(line).upper()
-    return [segment for segment in TRACK_SEGMENTS if segment.line == running_line]
 
 
 def _station(
@@ -396,7 +332,6 @@ __all__ = [
     "LINE_DN",
     "LINE_DN_FAST",
     "LINE_DN_SLOW",
-    "LINE_EXTENT_KM",
     "LINE_MID",
     "LINE_UP",
     "LINE_UP_FAST",
@@ -413,9 +348,6 @@ __all__ = [
     "TRACK_SEGMENTS",
     "TrackSegment",
     "get_available_lines_at_km",
-    "get_crossovers_at_station",
-    "get_reachable_crossovers",
     "get_section_id_at_km",
     "get_station_by_code",
-    "get_track_segments_for_line",
 ]

@@ -1,0 +1,12 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+.idea/workspace.xml
+*.db
+ml_verify_tmp.joblib
+*.log
+
+# Authorised AI-1 reports and local evaluation output. The synthetic tool fixture under eval/synthetic/ stays tracked.
+eval/real/corpus/**
+eval/real/output/**

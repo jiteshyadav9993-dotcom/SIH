@@ -4,152 +4,49 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="f81f9378-bf20-405d-b628-007f7b8ca538" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/KNOWN_LIMITATIONS.md" beforeDir="false" afterPath="$PROJECT_DIR$/KNOWN_LIMITATIONS.md" afterDir="false" />
+    <list default="true" id="a2da1f11-04a3-4be5-ae94-1c604c08fb4c" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/app.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/defects.py" beforeDir="false" afterPath="$PROJECT_DIR$/defects.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/index.html" beforeDir="false" afterPath="$PROJECT_DIR$/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/metrics.py" beforeDir="false" afterPath="$PROJECT_DIR$/metrics.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ml_priority.py" beforeDir="false" afterPath="$PROJECT_DIR$/ml_priority.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ml_priority_model.joblib" beforeDir="false" afterPath="$PROJECT_DIR$/ml_priority_model.joblib" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/templates/index.html" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_project.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_project.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/uv.lock" beforeDir="false" afterPath="$PROJECT_DIR$/uv.lock" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/report_nlp.py" beforeDir="false" afterPath="$PROJECT_DIR$/report_nlp.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/report_pipeline.py" beforeDir="false" afterPath="$PROJECT_DIR$/report_pipeline.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/report_provider.py" beforeDir="false" afterPath="$PROJECT_DIR$/report_provider.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/report_service.py" beforeDir="false" afterPath="$PROJECT_DIR$/report_service.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/report_store.py" beforeDir="false" afterPath="$PROJECT_DIR$/report_store.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/report_validate.py" beforeDir="false" afterPath="$PROJECT_DIR$/report_validate.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/sim_clock.py" beforeDir="false" afterPath="$PROJECT_DIR$/sim_clock.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/solver.py" beforeDir="false" afterPath="$PROJECT_DIR$/solver.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_report_apply.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_report_apply.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_report_dashboard.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_report_dashboard.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_report_fixture.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_report_fixture.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tests/test_report_source.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_report_source.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/timetable.py" beforeDir="false" afterPath="$PROJECT_DIR$/timetable.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/tools/build_ppt.py" beforeDir="false" afterPath="$PROJECT_DIR$/tools/build_ppt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/topology.py" beforeDir="false" afterPath="$PROJECT_DIR$/topology.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/verify_urgency.py" beforeDir="false" afterPath="$PROJECT_DIR$/verify_urgency.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
   </component>
-  <component name="FileTemplateManagerImpl">
-    <option name="RECENT_TEMPLATES">
-      <list>
-        <option value="Python Script" />
-      </list>
-    </option>
-  </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="NextEditCompletionFeaturesState">
-    <decayedCancelled>
-      <entry key="MS100" value="1.0004250735278855" />
-      <entry key="MS500" value="1.2218617886387249" />
-      <entry key="S2" value="2.522698709433529" />
-      <entry key="S5" value="5.399200682939359" />
-      <entry key="S10" value="8.2692515380651" />
-      <entry key="S30" value="11.61922687700184" />
-      <entry key="S60" value="12.74976845851459" />
-      <entry key="M2" value="13.461654603021207" />
-      <entry key="M5" value="14.152074192308596" />
-      <entry key="M10" value="14.512527154817361" />
-      <entry key="M15" value="14.658113588448877" />
-      <entry key="M30" value="14.819773378788916" />
-      <entry key="H1" value="14.90739539539373" />
-      <entry key="H2" value="14.953052186885728" />
-      <entry key="H4" value="14.976361788641048" />
-      <entry key="D1" value="14.996037225193167" />
-      <entry key="W1" value="14.99943332093608" />
-    </decayedCancelled>
-    <decayedSelected>
-      <entry key="MS100" value="0.0" />
-      <entry key="MS500" value="0.0" />
-      <entry key="S2" value="0.0" />
-      <entry key="S5" value="0.0" />
-      <entry key="S10" value="0.0" />
-      <entry key="S30" value="0.0" />
-      <entry key="S60" value="0.0" />
-      <entry key="M2" value="0.0" />
-      <entry key="M5" value="0.0" />
-      <entry key="M10" value="0.0" />
-      <entry key="M15" value="0.0" />
-      <entry key="M30" value="0.0" />
-      <entry key="H1" value="0.0" />
-      <entry key="H2" value="0.0" />
-      <entry key="H4" value="0.0" />
-      <entry key="D1" value="0.0" />
-      <entry key="W1" value="0.0" />
-    </decayedSelected>
-    <decayedShown>
-      <entry key="MS100" value="4.250735373250406E-4" />
-      <entry key="MS500" value="0.22807571743588115" />
-      <entry key="S2" value="1.7993716377484554" />
-      <entry key="S5" value="4.9533649954684655" />
-      <entry key="S10" value="7.966147045893799" />
-      <entry key="S30" value="11.478998182243101" />
-      <entry key="S60" value="12.67212173213963" />
-      <entry key="M2" value="13.420643361897563" />
-      <entry key="M5" value="14.135078131050442" />
-      <entry key="M10" value="14.503920191810383" />
-      <entry key="M15" value="14.652350244233455" />
-      <entry key="M30" value="14.816878671614573" />
-      <entry key="H1" value="14.905944710452289" />
-      <entry key="H2" value="14.952326001842255" />
-      <entry key="H4" value="14.975998484215197" />
-      <entry key="D1" value="14.99597664491525" />
-      <entry key="W1" value="14.999424665885789" />
-    </decayedShown>
-  </component>
-  <component name="ProjectColorInfo">{
-  &quot;associatedIndex&quot;: 6,
-  &quot;fromUser&quot;: false
-}</component>
-  <component name="ProjectId" id="3J7m4JRqlnIuwMsGOucdkLgWO7z" />
-  <component name="ProjectViewState">
-    <option name="hideEmptyMiddlePackages" value="true" />
-    <option name="showLibraryContents" value="true" />
-  </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;JavaScript Debug.index.html.executor&quot;: &quot;Run&quot;,
-    &quot;JavaScript Debug.infographic.html.executor&quot;: &quot;Run&quot;,
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;Python.app.executor&quot;: &quot;Run&quot;,
-    &quot;Python.corridor_data.executor&quot;: &quot;Run&quot;,
-    &quot;Python.defects.executor&quot;: &quot;Run&quot;,
-    &quot;Python.metrics.executor&quot;: &quot;Run&quot;,
-    &quot;Python.optimizer.executor&quot;: &quot;Run&quot;,
-    &quot;Python.solver.executor&quot;: &quot;Run&quot;,
-    &quot;Python.timetable.executor&quot;: &quot;Run&quot;,
-    &quot;Python.topology.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.typescript.service.memoryLimit.init&quot;: &quot;true&quot;,
-    &quot;SHARE_PROJECT_CONFIGURATION_FILES&quot;: &quot;true&quot;,
-    &quot;codeWithMe.voiceChat.enabledByDefault&quot;: &quot;false&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/JITESH/Downloads/PythonProject5&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.jshint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.jshint&quot;: &quot;&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)"
   }
-}</component>
-  <component name="SharedIndexes">
-    <attachedChunks>
-      <set>
-        <option value="bundled-python-sdk-6fa658e1df1a-5bd6d13a2a75-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-262.8665.369" />
-      </set>
-    </attachedChunks>
-  </component>
+}]]></component>
   <component name="TaskManager">
-    <task active="true" id="Default" summary="Default task">
-      <changelist id="f81f9378-bf20-405d-b628-007f7b8ca538" name="Changes" comment="" />
-      <created>1789020287198</created>
-      <option name="number" value="Default" />
-      <option name="presentableId" value="Default" />
-      <updated>1789020287198</updated>
-    </task>
     <servers />
-  </component>
-  <component name="TypeScriptGeneratedFilesManager">
-    <option name="version" value="3" />
   </component>
 </project>

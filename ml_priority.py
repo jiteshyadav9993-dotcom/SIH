@@ -19,10 +19,20 @@ from __future__ import annotations
 import random
 from pathlib import Path
 
-import joblib
-from sklearn.ensemble import GradientBoostingRegressor
-from sklearn.metrics import mean_absolute_error, r2_score
-from sklearn.model_selection import train_test_split
+try:
+    import joblib
+    from sklearn.ensemble import GradientBoostingRegressor
+    from sklearn.metrics import mean_absolute_error, r2_score
+    from sklearn.model_selection import train_test_split
+
+    ML_AVAILABLE = True
+except Exception:
+    joblib = None  # type: ignore[assignment]
+    GradientBoostingRegressor = None  # type: ignore[assignment,misc]
+    mean_absolute_error = None  # type: ignore[assignment]
+    r2_score = None  # type: ignore[assignment]
+    train_test_split = None  # type: ignore[assignment]
+    ML_AVAILABLE = False
 
 from defects import DefectType
 
@@ -106,6 +116,7 @@ FEATURE_NAMES: tuple[str, ...] = (
 MODEL_PATH: Path = Path(__file__).resolve().parent / "ml_priority_model.joblib"
 
 _CACHED_MODEL: GradientBoostingRegressor | None = None
+_DOCUMENTED_RULE_WARNING_EMITTED: bool = False
 
 
 def _days_to_critical(
@@ -160,39 +171,6 @@ def _feature_row(
     ]
 
 
-def generate_synthetic_training_data(
-    n_samples: int = N_SAMPLES,
-    random_seed: int = RANDOM_SEED,
-) -> tuple[list[list[float]], list[float]]:
-    """
-    Draw `n_samples` rows.
-
-    severity ~ uniform integer in [1, 100]
-    days_overdue ~ uniform integer in [0, 40]
-    defect_type ~ uniform over the six DefectType values
-    has_tsr ~ Bernoulli(0.5)
-
-    The label is synthetic_days_to_critical(...) plus seeded N(0, 0.35)
-    noise, clipped at 0. Rows that are already at severity >= 80 stay at 0.
-    """
-    if n_samples < 2:
-        raise ValueError(f"n_samples must be at least 2, got {n_samples}")
-    rng = random.Random(random_seed)
-    features: list[list[float]] = []
-    labels: list[float] = []
-    for _ in range(n_samples):
-        severity = rng.randint(1, 100)
-        days_overdue = rng.randint(0, 40)
-        defect_type = rng.choice(DEFECT_TYPE_ORDER)
-        has_tsr = rng.choice((True, False))
-        label = synthetic_days_to_critical(severity, days_overdue, has_tsr, defect_type)
-        if label > 0.0:
-            label = max(0.0, label + rng.gauss(0.0, LABEL_NOISE_STD_DAYS))
-        features.append(_feature_row(severity, float(days_overdue), has_tsr, defect_type))
-        labels.append(label)
-    return features, labels
-
-
 def _draw_range(rng: random.Random, bounds: tuple[float, float]) -> float:
     low, high = bounds
     if high < low:
@@ -209,12 +187,11 @@ def generate_varied_synthetic_training_data(
     overdue_accel_range: tuple[float, float] = VARIED_OVERDUE_ACCEL_RANGE,
 ) -> tuple[list[list[float]], list[float]]:
     """
-    Same covariates as generate_synthetic_training_data, with a wider label rule.
+    Draw severity, days overdue, defect type, and a TSR flag, then label each row
+    from its own noise draw.
 
     Each row draws its own observation-noise std and its own TSR multiplier
-    and overdue acceleration, then labels the row from that draw. The fixed
-    generator is unchanged and still uses LABEL_NOISE_STD_DAYS with the
-    documented coefficients.
+    and overdue acceleration, then labels the row from that draw.
     """
     if n_samples < 2:
         raise ValueError(f"n_samples must be at least 2, got {n_samples}")
@@ -345,16 +322,35 @@ def _coerce_defect_type(raw: DefectType | str) -> DefectType:
         raise ValueError(f"Unknown defect_type {raw!r}; expected one of {known}") from exc
 
 
+def _documented_rule_days(
+    severity: float,
+    days_overdue: float,
+    has_tsr: bool,
+    defect_type: DefectType,
+) -> float:
+    """Documented synthetic rule, with one warning the first time the model is unused."""
+    global _DOCUMENTED_RULE_WARNING_EMITTED
+    if not _DOCUMENTED_RULE_WARNING_EMITTED:
+        print(
+            "Warning: the trained model could not be loaded and the documented rule is being used."
+        )
+        _DOCUMENTED_RULE_WARNING_EMITTED = True
+    return synthetic_days_to_critical(severity, days_overdue, has_tsr, defect_type)
+
+
 def predict_days_to_critical(defect: "defects.TrackDefect") -> float:
     """Predicted days until this defect's severity would reach 80."""
     defect_type = _coerce_defect_type(defect.defect_type)
-    row = _feature_row(
-        float(defect.severity),
-        float(defect.days_overdue),
-        bool(defect.has_tsr),
-        defect_type,
-    )
-    prediction = float(load_model().predict([row])[0])
+    severity = float(defect.severity)
+    days_overdue = float(defect.days_overdue)
+    has_tsr = bool(defect.has_tsr)
+    if not ML_AVAILABLE:
+        return _documented_rule_days(severity, days_overdue, has_tsr, defect_type)
+    row = _feature_row(severity, days_overdue, has_tsr, defect_type)
+    try:
+        prediction = float(load_model().predict([row])[0])
+    except Exception:
+        return _documented_rule_days(severity, days_overdue, has_tsr, defect_type)
     return max(0.0, prediction)
 
 

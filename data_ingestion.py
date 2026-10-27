@@ -35,9 +35,9 @@ COA records are not defects at all (they describe sanctioned block
 validated, and reported in the ingest summary, but they are NOT wired into
 `solver.py` — see INGESTION.md for exactly what that would take.
 
-If nothing has ever been ingested (or every record was rejected),
-`get_effective_defects()` falls back to `defects.get_default_defects()` so
-the demo keeps working standalone.
+`get_effective_defects()` reads the persisted open backlog. Parsed
+TMS, SMMS, and TDMS rows stay in the ingest summary. They do not
+replace that backlog.
 ====================================================================
 """
 
@@ -51,7 +51,8 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import Any, Mapping
 
-import defects
+import backlog_state
+import sim_clock
 import topology
 from defects import (
     BlockType,
@@ -296,7 +297,7 @@ def parse_tms_csv(text: str, *, as_of: date | None = None) -> SourceIngestResult
     Expected columns: ASSET_ID, LINE_ID, CHAINAGE_KM, DEFECT_CODE, GRADE,
     DATE_REPORTED, DATE_DUE, TSR_FLAG, REMARKS.
     """
-    reference = as_of or date.today()
+    reference = as_of or sim_clock.sim_date()
     reader = csv.DictReader(io.StringIO(text))
     accepted: list[TrackDefect] = []
     errors: list[IngestError] = []
@@ -439,7 +440,7 @@ def parse_tdms_json(text: str, *, as_of: date | None = None) -> SourceIngestResu
     tsr_imposed, tsr_speed_kmh, last_inspection_date, inspection_due_date,
     remarks}, ...]}
     """
-    reference = as_of or date.today()
+    reference = as_of or sim_clock.sim_date()
     try:
         payload = json.loads(text)
     except json.JSONDecodeError as exc:
@@ -596,7 +597,7 @@ def ingest_all(
     A source with no text supplied contributes an empty (zero-read)
     result rather than an error -- not every demo run has all four feeds.
     """
-    reference = as_of or date.today()
+    reference = as_of or sim_clock.sim_date()
 
     tms_result = (
         parse_tms_csv(tms_text, as_of=reference)
@@ -668,23 +669,15 @@ def set_last_ingest(summary: IngestSummary) -> None:
     _LAST_SUMMARY = summary
 
 
-def get_last_ingest() -> IngestSummary | None:
-    return _LAST_SUMMARY
+def clear_last_ingest() -> None:
+    """Drop the in-memory structured-ingest override after a committed backlog change."""
+    global _LAST_SUMMARY
+    _LAST_SUMMARY = None
 
 
 def get_effective_defects() -> tuple[TrackDefect, ...]:
-    """
-    The defect set the rest of the app should plan against.
-
-    Uses the most recently ingested TMS/SMMS/TDMS records if at least one
-    was accepted; otherwise falls back to defects.get_default_defects() so
-    the demo runs standalone with no ingestion step at all.
-    """
-    if _LAST_SUMMARY is not None:
-        combined = _LAST_SUMMARY.all_defects()
-        if combined:
-            return combined
-    return defects.get_default_defects()
+    """The persisted open backlog. This is the only list the dashboard plans against."""
+    return backlog_state.get_active_defects()
 
 
 def get_effective_coa_windows() -> tuple[CorridorBlockWindow, ...]:
@@ -707,9 +700,9 @@ __all__ = [
     "TDMS_SAG_TO_SEVERITY_DIVISOR",
     "TMS_DEFECT_CODES",
     "TMS_LINE_CODES",
+    "clear_last_ingest",
     "get_effective_coa_windows",
     "get_effective_defects",
-    "get_last_ingest",
     "ingest_all",
     "ingest_from_folder",
     "parse_coa_json",

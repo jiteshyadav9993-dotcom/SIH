@@ -20,7 +20,7 @@ import shutil
 from pathlib import Path
 
 from pptx import Presentation
-from pptx.util import Inches, Pt, Emu
+from pptx.util import Inches, Pt
 from pptx.dml.color import RGBColor
 from pptx.enum.text import PP_ALIGN, MSO_ANCHOR, MSO_AUTO_SIZE
 from pptx.enum.shapes import MSO_SHAPE, MSO_SHAPE_TYPE
@@ -194,13 +194,6 @@ def add_picture_framed(slide, path: Path, l: float, t: float, w: float, h: float
     frame.line.width = Pt(1.0)
     frame.shadow.inherit = False
     return frame
-
-
-def image_size_for_width(name: str, width_in: float) -> tuple[float, float]:
-    from PIL import Image
-    with Image.open(ASSETS / name) as img:
-        w_px, h_px = img.size
-    return width_in, width_in * h_px / w_px
 
 
 def image_size_for_height(name: str, height_in: float) -> tuple[float, float]:

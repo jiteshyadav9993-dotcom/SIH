@@ -52,7 +52,6 @@ from timetable import (
     TYPE_SUPERFAST,
     TrainTrajectory,
 )
-from topology import CORRIDOR_END_KM, CORRIDOR_START_KM  # noqa: F401 — re-exported
 
 # ---------------------------------------------------------------------------
 # Machine depot geography and mobilisation physics
@@ -256,13 +255,6 @@ def protection_zone(bundle: MaintenanceBundle) -> tuple[float, float, str]:
     if bundle.block_type is BlockType.POWER_AND_TRAFFIC:
         protected_line = get_power_subsector(bundle.power_sector_id).isolated_line
     return block_lo, block_hi, protected_line
-
-
-def _delay_weight_for_type(train_type: str) -> int:
-    """CP-SAT objective coefficient for one delay-minute of this train category."""
-    if train_type in (TYPE_PREMIUM, TYPE_SUPERFAST, TYPE_EXPRESS, TYPE_LOCAL):
-        return W_PASSENGER_DELAY
-    return W_FREIGHT_DELAY
 
 
 def _trajectory_km_extent(trajectory: TrainTrajectory) -> tuple[float, float]:

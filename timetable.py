@@ -37,20 +37,8 @@ from topology import (
     get_station_by_code,
 )
 
-# ---------------------------------------------------------------------------
-# Simulation clock (3-minute base run of a 24-hour operating day)
-# ---------------------------------------------------------------------------
-
+# One operating day, in minutes. The live clock is sim_clock.py.
 TOTAL_SIMULATION_MINUTES: Final[float] = 1440.0
-DEFAULT_DEMO_DURATION_SEC: Final[float] = 180.0
-BASE_SPEED_RATIO: Final[float] = TOTAL_SIMULATION_MINUTES / DEFAULT_DEMO_DURATION_SEC
-
-SPEED_PRESETS: Final[dict[str, float]] = {
-    "0.5x": 4.0,
-    "1.0x": 8.0,
-    "2.0x": 16.0,
-    "6.0x": 48.0,
-}
 
 STATUS_RUNNING: Final[str] = "RUNNING"
 STATUS_STOPPED: Final[str] = "STOPPED"
@@ -91,14 +79,6 @@ CKL_TRIP_MIN: Final[float] = 65.0
 PLL_TRIP_MIN: Final[float] = 70.0
 LOCAL_DWELL_MIN: Final[float] = 1.0
 MAINLINE_DWELL_MIN: Final[float] = 2.0
-
-
-def get_simulation_minute(elapsed_seconds: float, speed_multiplier: float = 1.0) -> float:
-    """Map wall-clock elapsed seconds onto the 24-hour operating minute."""
-    wrapped = (float(elapsed_seconds) * BASE_SPEED_RATIO * float(speed_multiplier)) % TOTAL_SIMULATION_MINUTES
-    if wrapped < 0.0:
-        wrapped += TOTAL_SIMULATION_MINUTES
-    return wrapped
 
 
 def wrap_minute(minute: float) -> float:
@@ -987,6 +967,7 @@ class LinePossession:
     start_min: float
     end_min: float
     approach_km: float = 1.2
+    stop_approaching: bool = False
 
 
 @dataclass(frozen=True, slots=True)
@@ -1292,7 +1273,7 @@ def _hold_for_possession(
                     reached = True
         if not reached:
             t_stop = min(t_in, trajectory.waypoints[0].minute)
-        spare = _spare_line_at(possession, stop_km)
+        spare = None if possession.stop_approaching else _spare_line_at(possession, stop_km)
         if spare is not None:
             if increasing:
                 rejoin_km = min(CORRIDOR_END_KM, hi + approach)
@@ -1314,7 +1295,11 @@ def _hold_for_possession(
         tslw_speed: float | None = None
         tslw_lo: float | None = None
         tslw_hi: float | None = None
-        if tslw_slot is not None and _is_single_line_section(possession.start_km):
+        if (
+            not possession.stop_approaching
+            and tslw_slot is not None
+            and _is_single_line_section(possession.start_km)
+        ):
             crossing_start, _crossing_end = tslw_slot
             release_min = float(crossing_start)
             tslw_speed = _TSLW_SPEED_KMH
@@ -1521,6 +1506,9 @@ def get_regulated_positions(
     meet a closed line moves onto a spare line until it is past the block.
     Sections 2 and 4 keep a single line open under token working: conflicting
     trains wait for their own crossing slot, then pass at reduced speed.
+    A possession with stop_approaching holds those trains short of the site
+    on their own line. It does not divert them and it does not token them
+    through the closed chainage.
     """
     clock = wrap_minute(current_min)
     tslw_schedules = {
@@ -1538,33 +1526,6 @@ def get_regulated_positions(
         row.pop("hold_rank", None)
     rows.sort(key=lambda row: (float(row["current_km"]), str(row["train_id"])))
     return rows
-
-
-def get_active_trains_at_minute(current_min: float) -> list[dict]:
-    """Return every rake occupying the corridor at `current_min` (minute of day)."""
-    clock = wrap_minute(current_min)
-    active: list[dict] = []
-    for trajectory in ALL_TRAJECTORIES:
-        if not trajectory.window.contains(clock):
-            continue
-        km, line, status, speed = _interpolate_at(trajectory, clock)
-        if status == STATUS_BANKER_PUSH or status == STATUS_BANKER_RETURN:
-            direction = DIR_DN if status == STATUS_BANKER_PUSH else DIR_UP
-        else:
-            direction = trajectory.direction
-        active.append(
-            {
-                "train_id": trajectory.train_id,
-                "train_type": trajectory.train_type,
-                "direction": direction,
-                "current_km": round(km, 3),
-                "current_line": line,
-                "speed_kmh": round(speed, 2),
-                "status": status,
-            }
-        )
-    active.sort(key=lambda row: (row["current_km"], row["train_id"]))
-    return active
 
 
 def get_trains_in_block(
@@ -1663,12 +1624,9 @@ __all__ = [
     "ALL_TRAJECTORIES",
     "BANKER_CYCLE_MIN",
     "BANKER_MASTER",
-    "BASE_SPEED_RATIO",
     "CKL_RAKES",
-    "DEFAULT_DEMO_DURATION_SEC",
     "MAINLINE_SERVICES",
     "PLL_RAKES",
-    "SPEED_PRESETS",
     "STATUS_BANKER_PUSH",
     "STATUS_BANKER_RETURN",
     "STATUS_DIVERTED",
@@ -1682,11 +1640,9 @@ __all__ = [
     "TrainTrajectory",
     "Waypoint",
     "build_timetable",
-    "get_active_trains_at_minute",
     "get_regulated_positions",
     "generate_freight_forecast",
     "get_all_trajectories",
-    "get_simulation_minute",
     "get_trains_in_block",
     "iter_trajectories_by_type",
     "minute_to_hhmm",

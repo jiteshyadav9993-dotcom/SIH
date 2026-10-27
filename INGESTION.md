@@ -41,13 +41,13 @@ reject-with-reason behaviour.
 `smms_file`, `tdms_file`, `coa_file` — any subset) or, for the demo, a
 `folder` form field that reads the four well-known filenames straight off
 disk (defaulting to `sample_data/`). It returns records-read /
-accepted / rejected-with-reasons per source. Accepted defects become the
-process-wide "effective" defect set consumed by `/api/master-data`,
-`/api/optimize`, and `/api/horizon-plan` (`data_ingestion.get_effective_defects()`).
-If nothing has ever been ingested, or every row across every source was
-rejected, those endpoints keep calling `defects.get_default_defects()`
-automatically — the original synthetic demo still runs standalone with zero
-setup.
+accepted / rejected-with-reasons per source. Those parsed rows stay in the
+response. They are not written to the active backlog. `/api/master-data`,
+`/api/optimize`, and `/api/horizon-plan` read
+`data_ingestion.get_effective_defects()`, which is the persisted open
+backlog filled by accepted maintenance reports. A fresh database has no
+open defects. `defects.get_default_defects()` remains available to tests
+and is not loaded by the console.
 
 ## What's still simulated, and why
 
@@ -92,12 +92,12 @@ Being direct about this for a judged submission:
   `solver.py`" constraint.
 
 - **The reference date (`as_of`) for overdue-day calculations defaults to
-  "today."** TMS and TDMS derive `days_overdue` from a due-date compared
-  against `date.today()` at ingest time; SMMS reports overdue days
-  directly (a real point of heterogeneity between the two kinds of legacy
-  system, kept rather than normalized away). A real feed would carry its
-  own "as-of" timestamp per export rather than trusting the ingesting
-  machine's clock.
+  the simulated day.** TMS and TDMS derive `days_overdue` from a due-date
+  compared against `sim_clock.sim_date()` at ingest time; SMMS reports
+  overdue days directly (a real point of heterogeneity between the two
+  kinds of legacy system, kept rather than normalized away). A real feed
+  would carry its own "as-of" timestamp per export. The ingest path does
+  not read the laptop's calendar.
 
 - **No persistence, no auth, single-process only.** The "effective defect
   set" lives in an in-memory module-level cache in `data_ingestion.py` for

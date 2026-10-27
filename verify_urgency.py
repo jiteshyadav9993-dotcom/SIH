@@ -19,9 +19,6 @@ from defects import (
     DefectType,
     MachineType,
     MaintenanceBundle,
-    PowerSubSector,
-    SpatialFootprint,
-    TrackDefect,
     compute_priority_urgency_score,
 )
 
