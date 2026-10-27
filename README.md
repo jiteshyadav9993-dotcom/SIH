@@ -12,11 +12,20 @@ Today Engineering, Traction Distribution, and Signal & Telecommunication each ke
 
 This DSS closes that loop:
 
+<<<<<<< HEAD
 1. **Ingest** track, signalling, traction, and control-office records into one backlog.
 2. **Prioritise** work by criticality, overdue urgency, TSR impact, and section traffic.
 3. **Bundle** nearby jobs from different departments into a single possession.
 4. **Optimise** the window against the working timetable and a goods-train forecast.
 5. **Publish** weekly and monthly block plans for officer and controller action.
+=======
+| Official ask | What this prototype does | What we can also do |
+|---|---|---|
+| Integrate TMS, SMMS, TDMS with COA corridor availability, the working timetable, and a goods forecast | Parsers for those four export shapes, an encoded CSMT–Pune corridor (~192 km, ~170 modelled services), and a seeded freight-forecast jitter on the goods WTT | Live TMS / SMMS / TDMS / COA / BDMS endpoints. Sample files are stand-ins. Severity mappings are engineering assumptions, not RDSO tables. |
+| AI/ML to prioritise and schedule by criticality, urgency, and asset impact | An inspectable Formula 1 urgency score. A separate Gradient Boosting forecast of days until severity 80. CP-SAT chooses the window | That the trained model owns safety scheduling. Formula 1 does. ML labels are synthetic, not real defect histories. The report reader is local sentence rules, not a generative model. |
+| Optimise blocks, cut downtime, coordinate Engineering, Traction, and S&T | Spatial bundling into one possession; hard rules for trains vs gangs, power isolation, and a model machine fleet; Punctuality-First / Asset-First / Mega-Block policies | A field measurement of train delay saved. Fleet caps are prototype settings. Only one block is active. A caution order is recorded; it does not yet slow trains on the map. |
+| Weekly and monthly horizons | `/api/horizon-plan` for 7 and 28 days, with the window types above | A true long-term resource plan. The 28-day view is the daily planner repeated. The console clock is simulated (day / week / weekday), not a calendar month. |
+>>>>>>> a3d5b411816e878d9995f6af90c6571c5174e3ee
 
 A person still sanctions, shifts, or rejects. The system never forces an unsafe window.
 
